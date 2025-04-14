@@ -8,6 +8,7 @@ namespace ResultLib
 {
     static public class ResultFactory
     {
+        static public Result Create(object value) => Result.Create(value);
         static public Result Ok() => Result.Ok();
         static public Result Ok(object value) => Result.Ok(value);
 
@@ -15,6 +16,8 @@ namespace ResultLib
         static public Result Error(string error) => Result.Error(error);
         static public Result Error(Exception exception) => Result.Error(exception);
 
+        
+        static public Result<T> Create<T>(T value) => Result<T>.Create(value);
         static public Result<T> Ok<T>() => Result<T>.Ok();
         static public Result<T> Ok<T>(T value) => Result<T>.Ok(value);
 
