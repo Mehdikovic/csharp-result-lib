@@ -1,0 +1,14 @@
+{
+  "name": "kovic.libs.result",
+  "version": "0.1.0",
+  "displayName": "Result Library",
+  "description": "Pseudo Rust Result Library",
+  "unity": "2022.3",
+  "unityRelease": "43f1",
+  "dependencies": {
+ },
+  "author": {
+    "name": "Mehdi Zarei",
+    "email": "dev.mehdi.zarei@gmail.com"
+  }
+}
