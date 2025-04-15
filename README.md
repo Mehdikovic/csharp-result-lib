@@ -11,10 +11,19 @@ I welcome **your feedback, suggestions, and contributions** to improve this proj
 **C# Version: 12.0**
 
 ### Unity Compatibility
-Checkout branch **unity**
-
 **Version: 2022.3.43f1** but should work with lower versions too.
 
 **.NET Standard 2.1**
 
 **C# Version: 9.0**
+
+Open Unity, go to Window → Package Manager
+
+Click the + button in the top-left corner
+
+Select "Add package from Git URL..."
+
+and enter the url:
+
+https://github.com/Mehdikovic/csharp-result-lib.git#unity
+
