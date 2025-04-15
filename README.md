@@ -5,7 +5,14 @@ With these **lightweight structs**, I can write more expressive and predictable 
 
 I welcome **your feedback, suggestions, and contributions** to improve this project further. Let's build something powerful together!
 
-### Unity Compatible
+### Default
+**.NET 9.0**
+
+**C# Version: 12.0**
+
+### Unity Compatibility
+Checkout branch **unity**
+
 **Version: 2022.3.43f1** but should work with lower versions too.
 
 **.NET Standard 2.1**
