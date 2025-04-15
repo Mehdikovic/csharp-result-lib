@@ -1,10 +1,7 @@
-namespace ResultLib.Core
-{
-    internal enum ActionState
-    {
+namespace ResultLib.Core {
+    internal enum ActionState {
         Error,
         Ok,
         Cancel,
     }
 }
-

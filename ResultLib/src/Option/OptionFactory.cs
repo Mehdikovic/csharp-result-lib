@@ -4,10 +4,8 @@
 
 using System;
 
-namespace ResultLib
-{
-    static public class OptionFactory
-    {
+namespace ResultLib {
+    static public class OptionFactory {
         static public Option Success() => Option.Success();
         static public Option Success(object value) => Option.Success(value);
 
@@ -31,7 +29,7 @@ namespace ResultLib
 
         static public Option<T> Canceled<T>() => Option<T>.Canceled();
         static public Option<T> Canceled<T>(T value) => Option<T>.Canceled(value);
-        
+
         static public Option<TSuccess, TFailed, TCanceled> Success<TSuccess, TFailed, TCanceled>() =>
             Option<TSuccess, TFailed, TCanceled>.Success();
         static public Option<TSuccess, TFailed, TCanceled> Success<TSuccess, TFailed, TCanceled>(TSuccess value) =>
@@ -43,15 +41,15 @@ namespace ResultLib
             Option<TSuccess, TFailed, TCanceled>.Failed(error);
         static public Option<TSuccess, TFailed, TCanceled> Failed<TSuccess, TFailed, TCanceled>(string error, TFailed value) =>
             Option<TSuccess, TFailed, TCanceled>.Failed(error, value);
-        
+
         static public Option<TSuccess, TFailed, TCanceled> Failed<TSuccess, TFailed, TCanceled>(Exception exception) =>
             Option<TSuccess, TFailed, TCanceled>.Failed(exception);
         static public Option<TSuccess, TFailed, TCanceled> Failed<TSuccess, TFailed, TCanceled>(Exception exception, TFailed value) =>
             Option<TSuccess, TFailed, TCanceled>.Failed(exception, value);
-        
+
         static public Option<TSuccess, TFailed, TCanceled> Canceled<TSuccess, TFailed, TCanceled>() =>
             Option<TSuccess, TFailed, TCanceled>.Canceled();
-        
+
         static public Option<TSuccess, TFailed, TCanceled> Canceled<TSuccess, TFailed, TCanceled>(TCanceled value) =>
             Option<TSuccess, TFailed, TCanceled>.Canceled(value);
     }
