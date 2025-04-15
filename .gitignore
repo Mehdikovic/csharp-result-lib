@@ -1,5 +1,6 @@
 # Common IntelliJ Platform excludes
 .idea/
+.editorconfig
 
 # User specific
 **/.idea/**/workspace.xml
