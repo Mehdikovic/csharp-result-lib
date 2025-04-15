@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+
 using ResultLib.Core;
 
 namespace ResultLib {
@@ -65,11 +66,11 @@ namespace ResultLib {
 
         public bool Some(out object value) => IsOk(out value) && value != null;
         public object Some(object defaultValue) =>
-            IsOk(out var value) && value != null
+            IsOk(out object value) && value != null
                 ? value
                 : (defaultValue ?? throw Exceptions.Result.InvalidNullSome());
         public object Some([NotNull] Func<object> func) =>
-            IsOk(out var value) && value != null
+            IsOk(out object value) && value != null
                 ? value
                 : (func.Invoke() ?? throw Exceptions.Result.InvalidNullSome());
 
@@ -84,16 +85,18 @@ namespace ResultLib {
                 : (func.Invoke() ?? throw Exceptions.Result.InvalidNullSome());
 
         public Exception UnwrapErr() => IsError() ? _error : throw Exceptions.Result.InvalidOperationUnwrapErr();
-        public void ThrowIfError() { if (IsError()) throw _error; }
+        public void ThrowIfError() {
+            if (IsError()) throw _error;
+        }
 
         public TRet Match<TRet>(Func<object, TRet> onOk, Func<Exception, TRet> onError) {
-            if (IsOk(out var value)) return onOk.Invoke(value);
+            if (IsOk(out object value)) return onOk.Invoke(value);
             if (IsError(out var exception)) return onError.Invoke(exception);
             throw new InvalidOperationException();
         }
 
         public void Match(Action<object> onOk, Action<Exception> onError) {
-            if (IsOk(out var value)) onOk.Invoke(value);
+            if (IsOk(out object value)) onOk.Invoke(value);
             if (IsError(out var exception)) onError.Invoke(exception);
             throw new InvalidOperationException();
         }
@@ -119,14 +122,14 @@ namespace ResultLib {
         public override bool Equals(object obj)
             => obj is Result other && Equals(other);
 
-        public override int GetHashCode() => 
+        public override int GetHashCode() =>
             IsOk()
                 ? HashCode.Combine((int)_state, _value.GetHashCode())
                 : HashCode.Combine((int)_state, _error.GetHashCode());
-        
+
 
         public override string ToString() {
-            if (IsOk(out var value)) return $"Ok = {value}";
+            if (IsOk(out object value)) return $"Ok = {value}";
             if (IsError(out var exception)) return $"Error = {exception}";
             return "Unrecognized State";
         }

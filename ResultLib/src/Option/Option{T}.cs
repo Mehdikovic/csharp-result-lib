@@ -3,6 +3,7 @@
 // ReSharper disable MemberCanBePrivate.Global
 
 using System;
+
 using ResultLib.Core;
 
 namespace ResultLib {
@@ -284,7 +285,7 @@ namespace ResultLib {
         }
 
         static public Option ToOption(Option<T> option) {
-            if (option.IsSuccess(out var result)) {
+            if (option.IsSuccess(out Result<T> result)) {
                 return result.IsOk(out var value)
                     ? Option.Success(value)
                     : Option.Success();

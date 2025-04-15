@@ -3,6 +3,7 @@
 // ReSharper disable MemberCanBePrivate.Global
 
 using System;
+
 using ResultLib.Core;
 
 namespace ResultLib {
