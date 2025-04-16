@@ -86,9 +86,14 @@ namespace ResultLib {
                 : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
         }
 
-        public Exception UnwrapErr() => IsError() ? _error : throw ErrorFactory.Result.InvalidOperationUnwrapErrWhenOk();
+        public Exception UnwrapErr() {
+            if (!IsError()) throw ErrorFactory.Result.InvalidOperationUnwrapErrWhenOk();
+            if (_error == null) throw ErrorFactory.Result.EmptyConstructor();
+            return _error;
+        }
+
         public void ThrowIfError() {
-            if (IsError()) throw _error;
+            if (IsError()) throw _error ?? ErrorFactory.Result.EmptyConstructor();
         }
 
         public TRet Match<TRet>(Func<T, TRet> onOk, Func<Exception, TRet> onError) {
@@ -128,8 +133,8 @@ namespace ResultLib {
 
         public override int GetHashCode() =>
             IsOk()
-                ? HashCode.Combine((int)_state, _value.GetHashCode())
-                : HashCode.Combine((int)_state, _error.GetHashCode());
+                ? HashCode.Combine((int)_state, _value?.GetHashCode() ?? 0)
+                : HashCode.Combine((int)_state, _error?.GetHashCode() ?? 0);
 
         public override string ToString() {
             return _state switch {
@@ -177,7 +182,7 @@ namespace ResultLib {
             throw ErrorFactory.Result.InvalidImplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
         }
 
-        static public Result ToResult(Result<T> result) {
+        static private Result ToResult(Result<T> result) {
             if (result.IsOk(out var value)) return Result.Ok(value);
             if (result.IsError(out var exception)) return Result.Error(exception);
 
