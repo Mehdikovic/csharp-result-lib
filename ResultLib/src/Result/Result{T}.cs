@@ -1,10 +1,11 @@
 // ReSharper disable CheckNamespace
-// ReSharper disable ArrangeModifiersOrder
-// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConvertIfStatementToSwitchStatement
+// ReSharper disable InvertIf
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+
+using static System.ArgumentNullException;
 
 using ResultLib.Core;
 
@@ -16,33 +17,33 @@ namespace ResultLib {
         public Exception UnwrapErr();
     }
 
-    public struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
-        private ActionState _state;
-        private Exception _error;
-        private T _value;
+    public struct Result<T>() : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
+        private ResultState _state = ResultState.Error;
+        private Exception _error = ErrorFactory.Result.EmptyConstructor();
+        private T _value = default;
 
         static public Result<T> Ok() =>
-            new Result<T> { _state = ActionState.Ok };
+            new Result<T> { _state = ResultState.Ok };
 
         static public Result<T> Ok(T value) =>
-            new Result<T> { _state = ActionState.Ok, _value = value };
+            new Result<T> { _state = ResultState.Ok, _value = value };
 
         static public Result<T> Error() =>
-            new Result<T> { _state = ActionState.Error, _error = Exceptions.Result.Default() };
+            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Default() };
 
         static public Result<T> Error(string error) =>
-            new Result<T> { _state = ActionState.Error, _error = Exceptions.Result.Create(error) };
+            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Create(error) };
 
         static public Result<T> Error(Exception exception) =>
-            new Result<T> { _state = ActionState.Error, _error = exception ?? Exceptions.Result.Default() };
+            new Result<T> { _state = ResultState.Error, _error = exception ?? ErrorFactory.Result.Default() };
 
         static public Result<T> Create(T value) =>
-            value == null ? Error(Exceptions.Result.InvalidCreation()) : Ok(value);
+            value == null ? Error(ErrorFactory.Result.InvalidAttemptToCreateOk()) : Ok(value);
 
-        public bool IsOk() => _state == ActionState.Ok;
+        public bool IsOk() => _state == ResultState.Ok;
 
         public bool IsOk(out T value) {
-            if (_state == ActionState.Ok) {
+            if (_state == ResultState.Ok) {
                 value = _value;
                 return true;
             }
@@ -51,10 +52,10 @@ namespace ResultLib {
             return false;
         }
 
-        public bool IsError() => _state == ActionState.Error;
+        public bool IsError() => _state == ResultState.Error;
 
         public bool IsError(out Exception exception) {
-            if (_state == ActionState.Error) {
+            if (_state == ResultState.Error) {
                 exception = _error;
                 return true;
             }
@@ -63,43 +64,61 @@ namespace ResultLib {
             return false;
         }
 
-        public T Unwrap() => IsOk() ? _value : throw Exceptions.Result.InvalidOperationUnwrap();
+        public T Unwrap() => IsOk() ? _value : throw ErrorFactory.Result.InvalidOperationUnwrapWhenError();
         public T Unwrap(T defaultValue) => IsOk() ? _value : defaultValue;
-        public T Unwrap([NotNull] Func<T> func) => IsOk() ? _value : func.Invoke();
+        public T Unwrap(Func<T> func) => IsOk() ? _value : func.Invoke();
 
         public bool Some(out T value) => IsOk(out value) && value != null;
-        public T Some(T defaultValue) =>
-            IsOk(out var value) && value != null
-                ? value
-                : (defaultValue ?? throw Exceptions.Result.InvalidNullSome());
-        public T Some([NotNull] Func<T> func) =>
-            IsOk(out var value) && value != null
-                ? value
-                : (func.Invoke() ?? throw Exceptions.Result.InvalidNullSome());
 
-        public Exception UnwrapErr() => IsError() ? _error : throw Exceptions.Result.InvalidOperationUnwrapErr();
+        public T Some(T defaultValue) {
+            ThrowIfNull(defaultValue);
+
+            return IsOk(out var value) && value != null
+                ? value
+                : defaultValue;
+        }
+
+        public T Some(Func<T> func) {
+            ThrowIfNull(func);
+
+            return IsOk(out var value) && value != null
+                ? value
+                : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
+        }
+
+        public Exception UnwrapErr() => IsError() ? _error : throw ErrorFactory.Result.InvalidOperationUnwrapErrWhenOk();
         public void ThrowIfError() {
             if (IsError()) throw _error;
         }
 
-        public TRet Match<TRet>([NotNull] Func<T, TRet> onOk, [NotNull] Func<Exception, TRet> onError) {
-            if (IsOk(out var value)) return onOk.Invoke(value);
-            if (IsError(out var exception)) return onError.Invoke(exception);
-            throw Exceptions.Result.InvalidOperationMatch();
+        public TRet Match<TRet>(Func<T, TRet> onOk, Func<Exception, TRet> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
+            return _state switch {
+                ResultState.Ok => onOk.Invoke(Unwrap()),
+                ResultState.Error => onError.Invoke(UnwrapErr()),
+                _ => throw ErrorFactory.Result.InvalidOperationMatch()
+            };
         }
 
-        public void Match([NotNull] Action<T> onOk, [NotNull] Action<Exception> onError) {
-            if (IsOk(out var value)) onOk.Invoke(value);
-            if (IsError(out var exception)) onError.Invoke(exception);
-            throw Exceptions.Result.InvalidOperationMatch();
+        public void Match(Action<T> onOk, Action<Exception> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
+            switch (_state) {
+                case ResultState.Ok: onOk.Invoke(Unwrap()); break;
+                case ResultState.Error: onError.Invoke(UnwrapErr()); break;
+                default: throw ErrorFactory.Result.InvalidOperationMatch();
+            }
         }
 
         public Result ToResult() => ToResult(this);
 
         public bool Equals(Result<T> other) {
             return (_state, other._state) switch {
-                (ActionState.Ok, ActionState.Ok) => EqualityComparer<T>.Default.Equals(_value, other._value),
-                (ActionState.Error, ActionState.Error) => ExceptionUtility.EqualValue(_error, other._error),
+                (ResultState.Ok, ResultState.Ok) => EqualityComparer<T>.Default.Equals(_value, other._value),
+                (ResultState.Error, ResultState.Error) => ExceptionUtility.EqualValue(_error, other._error),
                 _ => false
             };
         }
@@ -113,36 +132,38 @@ namespace ResultLib {
                 : HashCode.Combine((int)_state, _error.GetHashCode());
 
         public override string ToString() {
-            if (IsOk(out var value)) return $"Ok = {value}";
-            if (IsError(out var exception)) return $"Error = {exception}";
-            return "Unrecognized State";
+            return _state switch {
+                ResultState.Ok => "Ok = {0}".Format(Unwrap()),
+                ResultState.Error => "Error = {0}".Format(UnwrapErr()),
+                _ => "Error:: Unrecognized State"
+            };
         }
 
         public int CompareTo(Result<T> other) {
             return (_state, other._state) switch {
-                (ActionState.Ok, ActionState.Ok) => Comparer<T>.Default.Compare(_value, other._value),
-                (ActionState.Ok, ActionState.Error) => -1,
-                (ActionState.Error, ActionState.Ok) => 1,
+                (ResultState.Ok, ResultState.Ok) => Comparer<T>.Default.Compare(_value, other._value),
+                (ResultState.Ok, ResultState.Error) => -1,
+                (ResultState.Error, ResultState.Ok) => 1,
                 _ => 0
             };
         }
 
-        public static bool operator ==(Result<T> left, Result<T> right)
+        static public bool operator ==(Result<T> left, Result<T> right)
             => left.Equals(right);
 
-        public static bool operator !=(Result<T> left, Result<T> right)
+        static public bool operator !=(Result<T> left, Result<T> right)
             => !left.Equals(right);
 
-        public static bool operator >(Result<T> left, Result<T> right)
+        static public bool operator >(Result<T> left, Result<T> right)
             => left.CompareTo(right) > 0;
 
-        public static bool operator <(Result<T> left, Result<T> right)
+        static public bool operator <(Result<T> left, Result<T> right)
             => left.CompareTo(right) < 0;
 
-        public static bool operator >=(Result<T> left, Result<T> right)
+        static public bool operator >=(Result<T> left, Result<T> right)
             => left.CompareTo(right) >= 0;
 
-        public static bool operator <=(Result<T> left, Result<T> right)
+        static public bool operator <=(Result<T> left, Result<T> right)
             => left.CompareTo(right) <= 0;
 
         static public implicit operator Result<T>(Result result) {
@@ -153,14 +174,14 @@ namespace ResultLib {
                 if (obj is T value) return Result<T>.Ok(value);
             }
 
-            throw Exceptions.Result.InvalidImplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
+            throw ErrorFactory.Result.InvalidImplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
         }
 
         static public Result ToResult(Result<T> result) {
             if (result.IsOk(out var value)) return Result.Ok(value);
             if (result.IsError(out var exception)) return Result.Error(exception);
 
-            throw Exceptions.Result.InvalidBoxingCast(typeof(T));
+            throw ErrorFactory.Result.InvalidBoxingCast(typeof(T));
         }
     }
 }

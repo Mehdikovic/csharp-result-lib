@@ -5,19 +5,25 @@
 using System;
 
 namespace ResultLib.Core {
-    internal static class Exceptions {
+    internal static class ErrorFactory {
         internal static class Option {
             static internal readonly Func<Exception> Default =
                 () => new Exception("Option:: Something went wrong.");
 
             static internal readonly Func<string, Exception> Create =
                 (error) => new Exception($"Option:: {error ?? string.Empty}");
+            
+            static internal readonly Func<InvalidOperationException> EmptyConstructor =
+                () => new InvalidOperationException("Option:: Must be instantiated with Static Methods or Factory.");
 
             static internal readonly Func<OperationCanceledException> Cancel =
                 () => new OperationCanceledException("Option:: Operation cancelled.");
 
             static internal readonly Func<NullReferenceException> NullUnwrapErr =
                 () => new NullReferenceException("Option:: does not have an Exception when calling UnwrapErr.");
+            
+            static internal readonly Func<InvalidOperationException> InvalidOperationMatch =
+                () => new InvalidOperationException("Option:: state is not recognized. Should be [Success], [Failed] or [Canceled]");
 
             static internal readonly Func<NullReferenceException> InvalidIsOkCastOperation =
                 () => new NullReferenceException("Option:: Option cannot hold a null value when IsOk is true.");
@@ -35,17 +41,20 @@ namespace ResultLib.Core {
 
             static internal readonly Func<string, Exception> Create =
                 (error) => new Exception($"Result:: {error ?? string.Empty}");
+            
+            static internal readonly Func<InvalidOperationException> EmptyConstructor =
+                () => new InvalidOperationException("Result:: Must be instantiated with Static Methods or Factory.");
 
-            static internal readonly Func<Exception> InvalidCreation =
+            static internal readonly Func<Exception> InvalidAttemptToCreateOk =
                 () => new Exception($"Result:: object value could not be null");
 
             static internal readonly Func<NullReferenceException> InvalidNullSome =
                 () => new NullReferenceException("Result:: Some method must return a value which is not null");
 
-            static internal readonly Func<InvalidOperationException> InvalidOperationUnwrap =
+            static internal readonly Func<InvalidOperationException> InvalidOperationUnwrapWhenError =
                 () => new InvalidOperationException("Result:: can not unwrap Result with State of [Error]");
-
-            static internal readonly Func<InvalidOperationException> InvalidOperationUnwrapErr =
+            
+            static internal readonly Func<InvalidOperationException> InvalidOperationUnwrapErrWhenOk =
                 () => new InvalidOperationException("Result:: can not unwrap Result with State of [Ok]");
 
             static internal readonly Func<InvalidOperationException> InvalidOperationMatch =
