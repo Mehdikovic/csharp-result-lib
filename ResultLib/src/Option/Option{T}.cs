@@ -363,7 +363,7 @@ namespace ResultLib {
             return default;
         }
 
-        static public Option ToOption(Option<T> option) {
+        static private Option ToOption(Option<T> option) {
             if (option.IsSuccess(out Result<T> result)) {
                 return result.IsOk(out var value)
                     ? Option.Success(value)

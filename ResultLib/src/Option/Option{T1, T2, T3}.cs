@@ -438,7 +438,7 @@ namespace ResultLib {
             return default;
         }
 
-        static public Option ToOption(Option<TSuccess, TFailed, TCanceled> option) {
+        static private Option ToOption(Option<TSuccess, TFailed, TCanceled> option) {
             if (option.IsSuccess(out Result<TSuccess> resultSuccess)) {
                 return resultSuccess.IsOk(out var value)
                     ? Option.Success(value)
