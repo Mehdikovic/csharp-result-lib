@@ -50,6 +50,9 @@ namespace ResultLib.Core {
 
             static internal readonly Func<NullReferenceException> InvalidNullSome =
                 () => new NullReferenceException("Result:: Some method must return a value which is not null");
+            
+            static internal readonly Func<NullReferenceException> InvalidDefaultValueOfNullSome =
+                () => new NullReferenceException("Result:: Some method cannot accept default value of null");
 
             static internal readonly Func<InvalidOperationException> InvalidOperationUnwrapWhenError =
                 () => new InvalidOperationException("Result:: can not unwrap Result with State of [Error]");
