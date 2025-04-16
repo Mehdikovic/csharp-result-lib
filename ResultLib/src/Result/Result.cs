@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 using ResultLib.Core;
 
-using static System.ArgumentNullException;
-
 namespace ResultLib {
-    public struct Result() : IEquatable<Result>, IComparable<Result> {
-        private ResultState _state = ResultState.Error;
-        private Exception _error = ErrorFactory.Result.EmptyConstructor();
-        private object _value = default;
+    public struct Result : IEquatable<Result>, IComparable<Result> {
+        private ResultState _state;
+        private Exception _error;
+        private object _value;
 
         static public Result Ok() =>
             new Result { _state = ResultState.Ok };
@@ -66,7 +64,7 @@ namespace ResultLib {
         public bool Some(out object value) => IsOk(out value) && value != null;
 
         public object Some(object defaultValue) {
-            ThrowIfNull(defaultValue);
+            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
 
             return IsOk(out object value) && value != null
                 ? value
@@ -74,8 +72,6 @@ namespace ResultLib {
         }
 
         public object Some(Func<object> func) {
-            ThrowIfNull(func);
-
             return IsOk(out object value) && value != null
                 ? value
                 : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
@@ -84,7 +80,7 @@ namespace ResultLib {
         public bool Some<T>(out T value) => IsOk(out value);
 
         public T Some<T>(T defaultValue) {
-            ThrowIfNull(defaultValue);
+            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
 
             return IsOk(out T value)
                 ? value
@@ -92,8 +88,6 @@ namespace ResultLib {
         }
 
         public T Some<T>(Func<T> func) {
-            ThrowIfNull(func);
-
             return IsOk(out T value)
                 ? value
                 : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
@@ -106,9 +100,6 @@ namespace ResultLib {
         }
 
         public TRet Match<TRet>(Func<object, TRet> onOk, Func<Exception, TRet> onError) {
-            ThrowIfNull(onOk);
-            ThrowIfNull(onError);
-
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
@@ -117,9 +108,6 @@ namespace ResultLib {
         }
 
         public void Match(Action<object> onOk, Action<Exception> onError) {
-            ThrowIfNull(onOk);
-            ThrowIfNull(onError);
-
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;

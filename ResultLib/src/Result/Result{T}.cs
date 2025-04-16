@@ -5,8 +5,6 @@
 using System;
 using System.Collections.Generic;
 
-using static System.ArgumentNullException;
-
 using ResultLib.Core;
 
 namespace ResultLib {
@@ -17,10 +15,10 @@ namespace ResultLib {
         public Exception UnwrapErr();
     }
 
-    public struct Result<T>() : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
-        private ResultState _state = ResultState.Error;
-        private Exception _error = ErrorFactory.Result.EmptyConstructor();
-        private T _value = default;
+    public struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
+        private ResultState _state;
+        private Exception _error;
+        private T _value;
 
         static public Result<T> Ok() =>
             new Result<T> { _state = ResultState.Ok };
@@ -71,16 +69,14 @@ namespace ResultLib {
         public bool Some(out T value) => IsOk(out value) && value != null;
 
         public T Some(T defaultValue) {
-            ThrowIfNull(defaultValue);
-
+            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
+            
             return IsOk(out var value) && value != null
                 ? value
                 : defaultValue;
         }
 
         public T Some(Func<T> func) {
-            ThrowIfNull(func);
-
             return IsOk(out var value) && value != null
                 ? value
                 : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
@@ -92,9 +88,6 @@ namespace ResultLib {
         }
 
         public TRet Match<TRet>(Func<T, TRet> onOk, Func<Exception, TRet> onError) {
-            ThrowIfNull(onOk);
-            ThrowIfNull(onError);
-
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
@@ -103,9 +96,6 @@ namespace ResultLib {
         }
 
         public void Match(Action<T> onOk, Action<Exception> onError) {
-            ThrowIfNull(onOk);
-            ThrowIfNull(onError);
-
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;

@@ -9,10 +9,10 @@ using ResultLib.Core;
 using static System.ArgumentNullException;
 
 namespace ResultLib {
-    public struct Option() : IEquatable<Option>, IComparable<Option> {
-        private OptionState _state = OptionState.Failed;
-        private Result _value = Result.Error();
-        private Exception _error = ErrorFactory.Option.EmptyConstructor();
+    public struct Option : IEquatable<Option>, IComparable<Option> {
+        private OptionState _state;
+        private Result _value;
+        private Exception _error;
 
         static public Option Success() =>
             new Option { _state = OptionState.Success, _value = Result.Error() };
@@ -95,10 +95,6 @@ namespace ResultLib {
             Func<Exception, TRet> onFailed,
             Func<Exception, TRet> onCanceled
         ) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
@@ -108,9 +104,6 @@ namespace ResultLib {
         }
 
         public TRet MatchSuccessOrFailed<TRet>(Func<Result, TRet> onSuccess, Func<Exception, TRet> onFailed) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
@@ -119,9 +112,6 @@ namespace ResultLib {
         }
 
         public TRet MatchSuccessOrCanceled<TRet>(Func<Result, TRet> onSuccess, Func<Exception, TRet> onCanceled) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
@@ -130,9 +120,6 @@ namespace ResultLib {
         }
 
         public TRet MatchFailedOrCanceled<TRet>(Func<Exception, TRet> onFailed, Func<Exception, TRet> onCanceled) {
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Failed => onFailed.Invoke(GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
@@ -145,10 +132,6 @@ namespace ResultLib {
             Func<Result, Exception, TRet> onFailed,
             Func<Result, Exception, TRet> onCanceled
         ) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Failed => onFailed.Invoke(GetResult(), GetError()),
@@ -158,9 +141,6 @@ namespace ResultLib {
         }
 
         public TRet MatchSuccessOrFailed<TRet>(Func<Result, TRet> onSuccess, Func<Result, Exception, TRet> onFailed) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Failed => onFailed.Invoke(GetResult(), GetError()),
@@ -169,9 +149,6 @@ namespace ResultLib {
         }
 
         public TRet MatchSuccessOrCanceled<TRet>(Func<Result, TRet> onSuccess, Func<Result, Exception, TRet> onCanceled) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResult()),
                 OptionState.Canceled => onCanceled.Invoke(GetResult(), GetError()),
@@ -180,9 +157,6 @@ namespace ResultLib {
         }
 
         public TRet MatchFailedOrCanceled<TRet>(Func<Result, Exception, TRet> onFailed, Func<Result, Exception, TRet> onCanceled) {
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             return _state switch {
                 OptionState.Failed => onFailed.Invoke(GetResult(), GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetResult(), GetError()),
@@ -191,10 +165,6 @@ namespace ResultLib {
         }
 
         public void Match(Action<Result> onSuccess, Action<Exception> onFailed, Action<Exception> onCanceled) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
@@ -204,9 +174,6 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrFailed(Action<Result> onSuccess, Action<Exception> onFailed) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
@@ -216,9 +183,6 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrCanceled(Action<Result> onSuccess, Action<Exception> onCanceled) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: break;
@@ -228,9 +192,6 @@ namespace ResultLib {
         }
 
         public void MatchFailedOrCanceled(Action<Exception> onFailed, Action<Exception> onCanceled) {
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
@@ -244,10 +205,6 @@ namespace ResultLib {
             Action<Result, Exception> onFailed,
             Action<Result, Exception> onCanceled
         ) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: onFailed.Invoke(GetResult(), GetError()); break;
@@ -257,9 +214,6 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrFailed(Action<Result> onSuccess, Action<Result, Exception> onFailed) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onFailed);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: onFailed.Invoke(GetResult(), GetError()); break;
@@ -269,9 +223,6 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrCanceled(Action<Result> onSuccess, Action<Result, Exception> onCanceled) {
-            ThrowIfNull(onSuccess);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResult()); break;
                 case OptionState.Failed: break;
@@ -281,9 +232,6 @@ namespace ResultLib {
         }
 
         public void MatchFailedOrCanceled(Action<Result, Exception> onFailed, Action<Result, Exception> onCanceled) {
-            ThrowIfNull(onFailed);
-            ThrowIfNull(onCanceled);
-
             switch (_state) {
                 case OptionState.Success: break;
                 case OptionState.Failed: onFailed.Invoke(GetResult(), GetError()); break;
