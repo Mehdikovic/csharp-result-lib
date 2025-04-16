@@ -1,6 +1,4 @@
 // ReSharper disable CheckNamespace
-// ReSharper disable ArrangeModifiersOrder
-// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InvertIf
 // ReSharper disable ConvertIfStatementToSwitchStatement
 
@@ -16,7 +14,7 @@ namespace ResultLib {
                 if (obj is T value) return Result<T>.Ok(value);
             }
 
-            throw Exceptions.Result.InvalidExplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
+            throw ErrorFactory.Result.InvalidExplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
         }
     }
 }

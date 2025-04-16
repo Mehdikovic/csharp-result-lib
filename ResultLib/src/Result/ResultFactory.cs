@@ -1,6 +1,4 @@
 // ReSharper disable CheckNamespace
-// ReSharper disable ArrangeModifiersOrder
-// ReSharper disable MemberCanBePrivate.Global
 
 using System;
 
