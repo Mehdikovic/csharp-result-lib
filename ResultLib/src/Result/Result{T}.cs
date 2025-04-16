@@ -56,7 +56,7 @@ namespace ResultLib {
 
         public bool IsError(out Exception exception) {
             if (_state == ResultState.Error) {
-                exception = _error;
+                exception = _error ?? ErrorFactory.Result.EmptyConstructor();
                 return true;
             }
 
