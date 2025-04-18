@@ -17,7 +17,7 @@ namespace ResultLib {
 
     public struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
         private ResultState _state;
-        private Exception _error;
+        private string _error;
         private T _value;
 
         static public Result<T> Ok() =>
@@ -27,16 +27,13 @@ namespace ResultLib {
             new Result<T> { _state = ResultState.Ok, _value = value };
 
         static public Result<T> Error() =>
-            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Default() };
+            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Default };
 
         static public Result<T> Error(string error) =>
-            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Create(error) };
-
-        static public Result<T> Error(Exception exception) =>
-            new Result<T> { _state = ResultState.Error, _error = exception ?? ErrorFactory.Result.Default() };
+            new Result<T> { _state = ResultState.Error, _error = error ?? string.Empty };
 
         static public Result<T> Create(T value) =>
-            value == null ? Error(ErrorFactory.Result.InvalidAttemptToCreateOk()) : Ok(value);
+            value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
 
         public bool IsOk() => _state == ResultState.Ok;
 
@@ -52,24 +49,24 @@ namespace ResultLib {
 
         public bool IsError() => _state == ResultState.Error;
 
-        public bool IsError(out Exception exception) {
+        public bool IsError(out string error) {
             if (_state == ResultState.Error) {
-                exception = _error ?? ErrorFactory.Result.EmptyConstructor();
+                error = _error ?? ErrorFactory.Result.EmptyConstructor;
                 return true;
             }
 
-            exception = null;
+            error = null;
             return false;
         }
 
-        public T Unwrap() => IsOk() ? _value : throw ErrorFactory.Result.InvalidOperationUnwrapWhenError();
+        public T Unwrap() => IsOk() ? _value : throw new Exception(ErrorFactory.Result.OperationUnwrapWhenError);
         public T Unwrap(T defaultValue) => IsOk() ? _value : defaultValue;
         public T Unwrap(Func<T> func) => IsOk() ? _value : func.Invoke();
 
         public bool Some(out T value) => IsOk(out value) && value != null;
 
         public T Some(T defaultValue) {
-            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
+            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
             
             return IsOk(out var value) && value != null
                 ? value
@@ -79,24 +76,24 @@ namespace ResultLib {
         public T Some(Func<T> func) {
             return IsOk(out var value) && value != null
                 ? value
-                : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
+                : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
         }
 
         public Exception UnwrapErr() {
-            if (!IsError()) throw ErrorFactory.Result.InvalidOperationUnwrapErrWhenOk();
-            if (_error == null) throw ErrorFactory.Result.EmptyConstructor();
-            return _error;
+            if (!IsError()) throw new Exception(ErrorFactory.Result.OperationUnwrapErrWhenOk);
+            if (_error == null) throw new Exception(ErrorFactory.Result.EmptyConstructor);
+            return new Exception(_error);
         }
 
         public void ThrowIfError() {
-            if (IsError()) throw _error ?? ErrorFactory.Result.EmptyConstructor();
+            if (IsError()) throw new Exception(_error ?? ErrorFactory.Result.EmptyConstructor);
         }
 
         public TRet Match<TRet>(Func<T, TRet> onOk, Func<Exception, TRet> onError) {
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
-                _ => throw ErrorFactory.Result.InvalidOperationMatch()
+                _ => throw new Exception(ErrorFactory.Result.OperationMatch)
             };
         }
 
@@ -104,7 +101,7 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
-                default: throw ErrorFactory.Result.InvalidOperationMatch();
+                default: throw new Exception(ErrorFactory.Result.OperationMatch);
             }
         }
 
@@ -113,7 +110,7 @@ namespace ResultLib {
         public bool Equals(Result<T> other) {
             return (_state, other._state) switch {
                 (ResultState.Ok, ResultState.Ok) => EqualityComparer<T>.Default.Equals(_value, other._value),
-                (ResultState.Error, ResultState.Error) => ExceptionUtility.EqualValue(_error, other._error),
+                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.OrdinalIgnoreCase),
                 _ => false
             };
         }
@@ -162,21 +159,21 @@ namespace ResultLib {
             => left.CompareTo(right) <= 0;
 
         static public implicit operator Result<T>(Result result) {
-            if (result.IsError(out var exception)) return Result<T>.Error(exception);
+            if (result.IsError(out string error)) return Result<T>.Error(error);
 
             if (result.IsOk(out object obj)) {
                 if (obj is null) return Result<T>.Ok();
                 if (obj is T value) return Result<T>.Ok(value);
             }
 
-            throw ErrorFactory.Result.InvalidImplicitUnboxingCast(result.Unwrap().GetType(), typeof(T));
+            throw new Exception(ErrorFactory.Result.CreateImplicitUnboxingCast(result.Unwrap().GetType(), typeof(T)));
         }
 
         static private Result ToResult(Result<T> result) {
+            if (result.IsError(out string error)) return Result.Error(error);
             if (result.IsOk(out var value)) return Result.Ok(value);
-            if (result.IsError(out var exception)) return Result.Error(exception);
 
-            throw ErrorFactory.Result.InvalidBoxingCast(typeof(T));
+            throw new Exception(ErrorFactory.Result.CreateBoxingCast(typeof(T)));
         }
     }
 }

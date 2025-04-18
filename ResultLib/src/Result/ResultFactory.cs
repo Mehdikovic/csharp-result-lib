@@ -10,7 +10,6 @@ namespace ResultLib {
 
         static public Result Error() => Result.Error();
         static public Result Error(string error) => Result.Error(error);
-        static public Result Error(Exception exception) => Result.Error(exception);
 
 
         static public Result<T> Create<T>(T value) => Result<T>.Create(value);
@@ -19,6 +18,5 @@ namespace ResultLib {
 
         static public Result<T> Error<T>() => Result<T>.Error();
         static public Result<T> Error<T>(string error) => Result<T>.Error(error);
-        static public Result<T> Error<T>(Exception exception) => Result<T>.Error(exception);
     }
 }

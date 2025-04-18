@@ -8,7 +8,7 @@ using ResultLib.Core;
 namespace ResultLib {
     public struct Result : IEquatable<Result>, IComparable<Result> {
         private ResultState _state;
-        private Exception _error;
+        private string _error;
         private object _value;
 
         static public Result Ok() =>
@@ -18,16 +18,13 @@ namespace ResultLib {
             new Result { _state = ResultState.Ok, _value = value };
 
         static public Result Error() =>
-            new Result { _state = ResultState.Error, _error = ErrorFactory.Result.Default() };
+            new Result { _state = ResultState.Error, _error = ErrorFactory.Result.Default };
 
         static public Result Error(string error) =>
-            new Result { _state = ResultState.Error, _error = ErrorFactory.Result.Create(error) };
-
-        static public Result Error(Exception exception) =>
-            new Result { _state = ResultState.Error, _error = exception ?? ErrorFactory.Result.Default() };
+            new Result { _state = ResultState.Error, _error = error ?? string.Empty };
 
         static public Result Create(object value) =>
-            value == null ? Error(ErrorFactory.Result.InvalidAttemptToCreateOk()) : Ok(value);
+            value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
 
         public bool IsOk() => _state == ResultState.Ok;
 
@@ -43,28 +40,24 @@ namespace ResultLib {
 
         public bool IsError() => _state == ResultState.Error;
 
-        public bool IsError(out Exception exception) {
+        public bool IsError(out string error) {
             if (_state == ResultState.Error) {
-                exception = _error ?? ErrorFactory.Result.EmptyConstructor();
+                error = _error ?? ErrorFactory.Result.EmptyConstructor;
                 return true;
             }
 
-            exception = null;
+            error = null;
             return false;
         }
 
-        public object Unwrap() => IsOk() ? _value : throw ErrorFactory.Result.InvalidOperationUnwrapWhenError();
+        public object Unwrap() => IsOk() ? _value : throw new Exception(ErrorFactory.Result.OperationUnwrapWhenError);
         public object Unwrap(object defaultValue) => IsOk() ? _value : defaultValue;
         public object Unwrap(Func<object> defaultGetter) => IsOk() ? _value : defaultGetter.Invoke();
-
-        public T Unwrap<T>() => IsOk() && _value is T nValue ? nValue : throw ErrorFactory.Result.InvalidOperationUnwrapWhenError();
-        public T Unwrap<T>(T defaultValue) => IsOk() && _value is T nValue ? nValue : defaultValue;
-        public T Unwrap<T>(Func<T> func) => IsOk() && _value is T nValue ? nValue : func.Invoke();
 
         public bool Some(out object value) => IsOk(out value) && value != null;
 
         public object Some(object defaultValue) {
-            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
+            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
 
             return IsOk(out object value) && value != null
                 ? value
@@ -74,13 +67,13 @@ namespace ResultLib {
         public object Some(Func<object> func) {
             return IsOk(out object value) && value != null
                 ? value
-                : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
+                : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
         }
 
         public bool Some<T>(out T value) => IsOk(out value);
 
         public T Some<T>(T defaultValue) {
-            if (defaultValue == null) throw ErrorFactory.Result.InvalidDefaultValueOfNullSome();
+            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
 
             return IsOk(out T value)
                 ? value
@@ -90,25 +83,25 @@ namespace ResultLib {
         public T Some<T>(Func<T> func) {
             return IsOk(out T value)
                 ? value
-                : (func.Invoke() ?? throw ErrorFactory.Result.InvalidNullSome());
+                : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
         }
 
 
         public Exception UnwrapErr() {
-            if (!IsError()) throw ErrorFactory.Result.InvalidOperationUnwrapErrWhenOk();
-            if (_error == null) throw ErrorFactory.Result.EmptyConstructor();
-            return _error;
+            if (!IsError()) throw new Exception(ErrorFactory.Result.OperationUnwrapErrWhenOk);
+            if (_error == null) throw new Exception(ErrorFactory.Result.EmptyConstructor);
+            return new Exception(_error);
         }
 
         public void ThrowIfError() {
-            if (IsError()) throw _error ?? ErrorFactory.Result.EmptyConstructor();
+            if (IsError()) throw new Exception(_error ?? ErrorFactory.Result.EmptyConstructor);
         }
 
         public TRet Match<TRet>(Func<object, TRet> onOk, Func<Exception, TRet> onError) {
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
-                _ => throw ErrorFactory.Result.InvalidOperationMatch()
+                _ => throw new Exception(ErrorFactory.Result.OperationMatch)
             };
         }
 
@@ -116,14 +109,14 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
-                default: throw ErrorFactory.Result.InvalidOperationMatch();
+                default: throw new Exception(ErrorFactory.Result.OperationMatch);
             }
         }
 
         public bool Equals(Result other) {
             return (_state, other._state) switch {
                 (ResultState.Ok, ResultState.Ok) => EqualityComparer<object>.Default.Equals(_value, other._value),
-                (ResultState.Error, ResultState.Error) => ExceptionUtility.EqualValue(_error, other._error),
+                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.OrdinalIgnoreCase),
                 _ => false
             };
         }
