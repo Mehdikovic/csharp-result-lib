@@ -19,6 +19,11 @@ namespace ResultLib {
             throw new Exception(ErrorFactory.Result.CreateExplicitUnboxingCast(result.Unwrap().GetType(), typeof(T)));
         }
 
+        static public Result ForwardError(this Result result) {
+            if (result.IsError(out string error)) return Result.Error(error);
+            throw new Exception(ErrorFactory.Result.AttemptToForwardError);
+        }
+        
         static public Result<TTo> ForwardError<TTo>(this Result result) {
             if (result.IsError(out string error)) return Result<TTo>.Error(error);
             throw new Exception(ErrorFactory.Result.AttemptToForwardError);
