@@ -1,6 +1,6 @@
 {
   "name": "com.kovic.libs.result",
-  "version": "0.3.6",
+  "version": "0.3.61",
   "displayName": "Result Library",
   "description": "Pseudo Rust Result Library",
   "unity": "2022.3",
