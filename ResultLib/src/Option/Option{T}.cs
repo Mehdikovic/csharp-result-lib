@@ -29,7 +29,7 @@ namespace ResultLib {
             new Option<T> { _state = OptionState.Success, _value = Result<T>.Error() };
 
         static public Option<T> Success(T value) =>
-            new Option<T> { _state = OptionState.Success, _value = Result<T>.Create(value) };
+            new Option<T> { _state = OptionState.Success, _value = Result<T>.FromRequired(value) };
 
         static public Option<T> Failed() =>
             new Option<T> { _state = OptionState.Failed, _error = ErrorFactory.Option.Default(), _value = Result<T>.Error() };
@@ -38,19 +38,19 @@ namespace ResultLib {
             new Option<T> { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result<T>.Error() };
 
         static public Option<T> Failed(string error, T value) =>
-            new Option<T> { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result<T>.Create(value) };
+            new Option<T> { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result<T>.FromRequired(value) };
 
         static public Option<T> Failed(Exception exception) =>
             new Option<T> { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result<T>.Error() };
 
         static public Option<T> Failed(Exception exception, T value) =>
-            new Option<T> { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result<T>.Create(value) };
+            new Option<T> { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result<T>.FromRequired(value) };
 
         static public Option<T> Canceled() =>
             new Option<T> { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result<T>.Error() };
 
         static public Option<T> Canceled(T value) =>
-            new Option<T> { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result<T>.Create(value) };
+            new Option<T> { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result<T>.FromRequired(value) };
 
         public bool IsSuccess() => _state == OptionState.Success;
         public bool IsSuccess(out Result<T> value) {

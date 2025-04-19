@@ -44,7 +44,7 @@ namespace ResultLib {
         static public Option<TSuccess, TFailed, TCanceled> Success(TSuccess value) =>
             new Option<TSuccess, TFailed, TCanceled> {
                 _state = OptionState.Success,
-                _valueSuccess = Result<TSuccess>.Create(value),
+                _valueSuccess = Result<TSuccess>.FromRequired(value),
                 _valueFailed = Result<TFailed>.Error(),
                 _valueCanceled = Result<TCanceled>.Error(),
             };
@@ -71,7 +71,7 @@ namespace ResultLib {
             new Option<TSuccess, TFailed, TCanceled> {
                 _state = OptionState.Failed,
                 _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Create(value),
+                _valueFailed = Result<TFailed>.FromRequired(value),
                 _valueCanceled = Result<TCanceled>.Error(),
                 _error = ErrorFactory.Option.Create(error),
             };
@@ -89,7 +89,7 @@ namespace ResultLib {
             new Option<TSuccess, TFailed, TCanceled> {
                 _state = OptionState.Failed,
                 _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Create(value),
+                _valueFailed = Result<TFailed>.FromRequired(value),
                 _valueCanceled = Result<TCanceled>.Error(),
                 _error = exception ?? ErrorFactory.Option.Default()
             };
@@ -108,7 +108,7 @@ namespace ResultLib {
                 _state = OptionState.Canceled,
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Create(value),
+                _valueCanceled = Result<TCanceled>.FromRequired(value),
                 _error = ErrorFactory.Option.Cancel()
             };
 

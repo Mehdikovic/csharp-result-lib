@@ -23,7 +23,7 @@ namespace ResultLib {
         static public Result Error(string error) =>
             new Result { _state = ResultState.Error, _error = error ?? string.Empty };
 
-        static public Result Create(object value) =>
+        static public Result FromRequired(object value) =>
             value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
 
         public bool IsOk() => _state == ResultState.Ok;
