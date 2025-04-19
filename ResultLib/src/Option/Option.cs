@@ -18,7 +18,7 @@ namespace ResultLib {
             new Option { _state = OptionState.Success, _value = Result.Error() };
 
         static public Option Success(object value) =>
-            new Option { _state = OptionState.Success, _value = Result.Create(value) };
+            new Option { _state = OptionState.Success, _value = Result.FromRequired(value) };
 
         static public Option Failed() =>
             new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Default(), _value = Result.Error() };
@@ -27,19 +27,19 @@ namespace ResultLib {
             new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result.Error() };
 
         static public Option Failed(string error, object value) =>
-            new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result.Create(value) };
+            new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result.FromRequired(value) };
 
         static public Option Failed(Exception exception) =>
             new Option { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result.Error() };
 
         static public Option Failed(Exception exception, object value) =>
-            new Option { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result.Create(value) };
+            new Option { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result.FromRequired(value) };
 
         static public Option Canceled() =>
             new Option { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result.Error() };
 
         static public Option Canceled(object value) =>
-            new Option { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result.Create(value) };
+            new Option { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result.FromRequired(value) };
 
         public bool IsSuccess() => _state == OptionState.Success;
         public bool IsSuccess(out Result value) {
