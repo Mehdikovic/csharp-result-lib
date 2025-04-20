@@ -7,6 +7,8 @@ using System.Collections.Generic;
 
 using ResultLib.Core;
 
+using static ResultLib.Core.ArgumentNullExceptionExtension;
+
 namespace ResultLib {
     public interface IResult<out T> {
         public bool IsOk();
@@ -66,14 +68,16 @@ namespace ResultLib {
         public bool Some(out T value) => IsOk(out value) && value != null;
 
         public T Some(T defaultValue) {
-            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
-            
+            ThrowIfNull(defaultValue);
+
             return IsOk(out var value) && value != null
                 ? value
                 : defaultValue;
         }
 
         public T Some(Func<T> func) {
+            ThrowIfNull(func);
+
             return IsOk(out var value) && value != null
                 ? value
                 : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
@@ -90,6 +94,9 @@ namespace ResultLib {
         }
 
         public TRet Match<TRet>(Func<T, TRet> onOk, Func<Exception, TRet> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
@@ -98,6 +105,9 @@ namespace ResultLib {
         }
 
         public void Match(Action<T> onOk, Action<Exception> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 using ResultLib.Core;
 
+using static ResultLib.Core.ArgumentNullExceptionExtension;
+
 namespace ResultLib {
     public struct Result : IEquatable<Result>, IComparable<Result> {
         private ResultState _state;
@@ -57,7 +59,7 @@ namespace ResultLib {
         public bool Some(out object value) => IsOk(out value) && value != null;
 
         public object Some(object defaultValue) {
-            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
+            ThrowIfNull(defaultValue);
 
             return IsOk(out object value) && value != null
                 ? value
@@ -65,6 +67,8 @@ namespace ResultLib {
         }
 
         public object Some(Func<object> func) {
+            ThrowIfNull(func);
+
             return IsOk(out object value) && value != null
                 ? value
                 : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
@@ -73,7 +77,7 @@ namespace ResultLib {
         public bool Some<T>(out T value) => IsOk(out value);
 
         public T Some<T>(T defaultValue) {
-            if (defaultValue == null) throw new Exception(ErrorFactory.Result.SomeDefaultValueOfNull);
+            ThrowIfNull(defaultValue);
 
             return IsOk(out T value)
                 ? value
@@ -81,6 +85,8 @@ namespace ResultLib {
         }
 
         public T Some<T>(Func<T> func) {
+            ThrowIfNull(func);
+
             return IsOk(out T value)
                 ? value
                 : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
@@ -97,6 +103,9 @@ namespace ResultLib {
         }
 
         public TRet Match<TRet>(Func<object, TRet> onOk, Func<Exception, TRet> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
@@ -105,6 +114,9 @@ namespace ResultLib {
         }
 
         public void Match(Action<object> onOk, Action<Exception> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
