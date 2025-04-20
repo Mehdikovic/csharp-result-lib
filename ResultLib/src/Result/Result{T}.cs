@@ -120,7 +120,7 @@ namespace ResultLib {
         public bool Equals(Result<T> other) {
             return (_state, other._state) switch {
                 (ResultState.Ok, ResultState.Ok) => EqualityComparer<T>.Default.Equals(_value, other._value),
-                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.OrdinalIgnoreCase),
+                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.InvariantCultureIgnoreCase),
                 _ => false
             };
         }
