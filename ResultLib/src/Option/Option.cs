@@ -6,13 +6,14 @@ using System;
 
 using ResultLib.Core;
 
-using static ResultLib.Core.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullExceptionExtension;
 
 namespace ResultLib {
-    public struct Option() : IEquatable<Option>, IComparable<Option> {
-        private OptionState _state = OptionState.Failed;
-        private Result _value = Result.Error();
-        private Exception _error = ErrorFactory.Option.EmptyConstructor();
+    public struct Option : IEquatable<Option>, IComparable<Option> {
+        private OptionState _state;
+        private Result _value;
+        private Exception _error;
+
 
         static public Option Success() =>
             new Option { _state = OptionState.Success, _value = Result.Error() };
@@ -21,7 +22,7 @@ namespace ResultLib {
             new Option { _state = OptionState.Success, _value = Result.FromRequired(value) };
 
         static public Option Failed() =>
-            new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Default(), _value = Result.Error() };
+            new Option { _state = OptionState.Failed, _value = Result.Error() };
 
         static public Option Failed(string error) =>
             new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result.Error() };
@@ -30,16 +31,16 @@ namespace ResultLib {
             new Option { _state = OptionState.Failed, _error = ErrorFactory.Option.Create(error), _value = Result.FromRequired(value) };
 
         static public Option Failed(Exception exception) =>
-            new Option { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result.Error() };
+            new Option { _state = OptionState.Failed, _error = exception, _value = Result.Error() };
 
         static public Option Failed(Exception exception, object value) =>
-            new Option { _state = OptionState.Failed, _error = exception ?? ErrorFactory.Option.Default(), _value = Result.FromRequired(value) };
+            new Option { _state = OptionState.Failed, _error = exception, _value = Result.FromRequired(value) };
 
         static public Option Canceled() =>
-            new Option { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result.Error() };
+            new Option { _state = OptionState.Canceled, _value = Result.Error() };
 
         static public Option Canceled(object value) =>
-            new Option { _state = OptionState.Canceled, _error = ErrorFactory.Option.Cancel(), _value = Result.FromRequired(value) };
+            new Option { _state = OptionState.Canceled, _value = Result.FromRequired(value) };
 
         public bool IsSuccess() => _state == OptionState.Success;
         public bool IsSuccess(out Result value) {
@@ -78,7 +79,18 @@ namespace ResultLib {
         }
 
         public Result GetResult() => _value;
-        public Exception GetError() => _error ?? ErrorFactory.Option.NullUnwrapErr();
+
+        internal Exception GetErrorInternal() => _error;
+        public Exception GetError() {
+            if (_error != null) return _error;
+
+            return _state switch {
+                OptionState.Success => ErrorFactory.Option.NullUnwrapErr(),
+                OptionState.Failed => ErrorFactory.Option.Default(),
+                OptionState.Canceled => ErrorFactory.Option.Cancel(),
+                _ => throw ErrorFactory.Option.InvalidStateWhenGettingError(),
+            };
+        }
 
         public void ThrowIfFailed() {
             if (IsFailed()) throw GetError();

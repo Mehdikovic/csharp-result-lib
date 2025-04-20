@@ -13,14 +13,14 @@ namespace ResultLib.Core {
             static internal readonly Func<string, Exception> Create =
                 (error) => new Exception($"Option:: {error ?? string.Empty}");
 
-            static internal readonly Func<InvalidOperationException> EmptyConstructor =
-                () => new InvalidOperationException("Option:: Must be instantiated with Static Methods or Factory.");
+            static internal readonly Func<InvalidOperationException> InvalidStateWhenGettingError =
+                () => new InvalidOperationException("Option:: state is invalid. Must be [Success] | [Failed] | [Canceled]");
 
             static internal readonly Func<OperationCanceledException> Cancel =
                 () => new OperationCanceledException("Option:: Operation cancelled.");
 
             static internal readonly Func<NullReferenceException> NullUnwrapErr =
-                () => new NullReferenceException("Option:: does not have an Exception when calling UnwrapErr.");
+                () => new NullReferenceException("Option:: does not have an Exception when calling UnwrapErr in state [Success].");
 
             static internal readonly Func<InvalidOperationException> InvalidOperationMatch =
                 () => new InvalidOperationException("Option:: state is not recognized. Should be [Success], [Failed] or [Canceled]");

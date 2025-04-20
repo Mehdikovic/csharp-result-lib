@@ -6,7 +6,7 @@ using System;
 
 using ResultLib.Core;
 
-using static ResultLib.Core.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullExceptionExtension;
 
 namespace ResultLib {
     public interface IOption<out TSuccess, out TFailed, out TCanceled> {
@@ -22,15 +22,15 @@ namespace ResultLib {
         Exception GetError();
     }
 
-    public struct Option<TSuccess, TFailed, TCanceled>() :
+    public struct Option<TSuccess, TFailed, TCanceled> :
         IOption<TSuccess, TFailed, TCanceled>,
         IEquatable<Option<TSuccess, TFailed, TCanceled>>,
         IComparable<Option<TSuccess, TFailed, TCanceled>> {
-        private OptionState _state = OptionState.Failed;
-        private Result<TSuccess> _valueSuccess = Result<TSuccess>.Error();
-        private Result<TFailed> _valueFailed = Result<TFailed>.Error();
-        private Result<TCanceled> _valueCanceled = Result<TCanceled>.Error();
-        private Exception _error = ErrorFactory.Option.EmptyConstructor();
+        private OptionState _state;
+        private Result<TSuccess> _valueSuccess;
+        private Result<TFailed> _valueFailed;
+        private Result<TCanceled> _valueCanceled;
+        private Exception _error;
 
 
         static public Option<TSuccess, TFailed, TCanceled> Success() =>
@@ -55,7 +55,6 @@ namespace ResultLib {
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.Error(),
                 _valueCanceled = Result<TCanceled>.Error(),
-                _error = ErrorFactory.Option.Default(),
             };
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(string error) =>
@@ -82,7 +81,7 @@ namespace ResultLib {
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.Error(),
                 _valueCanceled = Result<TCanceled>.Error(),
-                _error = exception ?? ErrorFactory.Option.Default()
+                _error = exception,
             };
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(Exception exception, TFailed value) =>
@@ -91,7 +90,7 @@ namespace ResultLib {
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.FromRequired(value),
                 _valueCanceled = Result<TCanceled>.Error(),
-                _error = exception ?? ErrorFactory.Option.Default()
+                _error = exception,
             };
 
         static public Option<TSuccess, TFailed, TCanceled> Canceled() =>
@@ -100,7 +99,6 @@ namespace ResultLib {
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.Error(),
                 _valueCanceled = Result<TCanceled>.Error(),
-                _error = ErrorFactory.Option.Cancel()
             };
 
         static public Option<TSuccess, TFailed, TCanceled> Canceled(TCanceled value) =>
@@ -109,7 +107,6 @@ namespace ResultLib {
                 _valueSuccess = Result<TSuccess>.Error(),
                 _valueFailed = Result<TFailed>.Error(),
                 _valueCanceled = Result<TCanceled>.FromRequired(value),
-                _error = ErrorFactory.Option.Cancel()
             };
 
         public bool IsSuccess() => _state == OptionState.Success;
@@ -152,12 +149,23 @@ namespace ResultLib {
         }
 
         public Result<TSuccess> GetResultSuccess() => _valueSuccess;
-        public Result<TFailed> GetResultFailed() => _valueFailed;
-        public Result<TCanceled> GetResultCanceled() => _valueCanceled;
-        public Exception GetError() => _error ?? ErrorFactory.Option.NullUnwrapErr();
         public IResult<TSuccess> UnwrapBoxingSuccess() => GetResultSuccess();
+        public Result<TFailed> GetResultFailed() => _valueFailed;
         public IResult<TFailed> UnwrapBoxingFailed() => GetResultFailed();
+        public Result<TCanceled> GetResultCanceled() => _valueCanceled;
         public IResult<TCanceled> UnwrapBoxingCanceled() => GetResultCanceled();
+
+        internal Exception GetErrorInternal() => _error;
+        public Exception GetError() {
+            if (_error != null) return _error;
+
+            return _state switch {
+                OptionState.Success => ErrorFactory.Option.NullUnwrapErr(),
+                OptionState.Failed => ErrorFactory.Option.Default(),
+                OptionState.Canceled => ErrorFactory.Option.Cancel(),
+                _ => throw ErrorFactory.Option.InvalidStateWhenGettingError(),
+            };
+        }
 
         public void ThrowIfFailed() {
             if (IsFailed()) throw GetError();
@@ -873,7 +881,7 @@ namespace ResultLib {
             if (option.IsFailed(out result)) {
                 if (result.IsError()) return Failed();
                 return result.Some<TFailed>(out var some)
-                    ? Failed(option.GetError(), some)
+                    ? Failed(option.GetErrorInternal(), some)
                     : Failed(ErrorFactory.Option.InvalidImplicitUnboxingCast(obj.GetType(), typeof(TFailed)));
             }
 
