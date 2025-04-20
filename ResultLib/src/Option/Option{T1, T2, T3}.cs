@@ -6,7 +6,7 @@ using System;
 
 using ResultLib.Core;
 
-using static System.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullException;
 
 namespace ResultLib {
     public interface IOption<out TSuccess, out TFailed, out TCanceled> {
@@ -169,11 +169,168 @@ namespace ResultLib {
             if (IsFailedOrCanceled()) throw GetError();
         }
 
+        #region Match_Func
+        public TRet Match<TRet>(
+            Func<TRet> onSuccess,
+            Func<TRet> onFailed,
+            Func<TRet> onCanceled
+        ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(),
+                OptionState.Failed => onFailed.Invoke(),
+                OptionState.Canceled => onCanceled.Invoke(),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet Match<TRet>(Func<TRet> onSuccess, Func<TRet> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(),
+                OptionState.Failed => onFailedOrCanceled.Invoke(),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchSuccessOrFailed<TRet>(Func<TRet> onSuccess, Func<TRet> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(),
+                OptionState.Failed => onFailed.Invoke(),
+                OptionState.Canceled => default,
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchSuccessOrCanceled<TRet>(Func<TRet> onSuccess, Func<TRet> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(),
+                OptionState.Failed => default,
+                OptionState.Canceled => onCanceled.Invoke(),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<TRet> onFailed, Func<TRet> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailed.Invoke(),
+                OptionState.Canceled => onCanceled.Invoke(),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<TRet> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailedOrCanceled.Invoke(),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet Match<TRet>(
+            Func<Result<TSuccess>, TRet> onSuccess,
+            Func<Result<TFailed>, TRet> onFailed,
+            Func<Result<TCanceled>, TRet> onCanceled
+        ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => onFailed.Invoke(GetResultFailed()),
+                OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet Match<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchSuccessOrFailed<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result<TFailed>, TRet> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => onFailed.Invoke(GetResultFailed()),
+                OptionState.Canceled => default,
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchSuccessOrCanceled<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result<TCanceled>, TRet> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => default,
+                OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<Result<TFailed>, TRet> onFailed, Func<Result<TCanceled>, TRet> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailed.Invoke(GetResultFailed()),
+                OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<Result, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
         public TRet Match<TRet>(
             Func<Result<TSuccess>, TRet> onSuccess,
             Func<Exception, TRet> onFailed,
             Func<Exception, TRet> onCanceled
         ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
@@ -182,27 +339,62 @@ namespace ResultLib {
             };
         }
 
+        public TRet Match<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Exception, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetError()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetError()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
         public TRet MatchSuccessOrFailed<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Exception, TRet> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
-                _ => default
+                OptionState.Canceled => default,
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
 
         public TRet MatchSuccessOrCanceled<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Exception, TRet> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
-                _ => default
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
 
         public TRet MatchFailedOrCanceled<TRet>(Func<Exception, TRet> onFailed, Func<Exception, TRet> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
+                OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
-                _ => default
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<Exception, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetError()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetError()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
 
@@ -211,6 +403,10 @@ namespace ResultLib {
             Func<Result<TFailed>, Exception, TRet> onFailed,
             Func<Result<TCanceled>, Exception, TRet> onCanceled
         ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
@@ -219,28 +415,209 @@ namespace ResultLib {
             };
         }
 
+        public TRet Match<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result, Exception, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+
         public TRet MatchSuccessOrFailed<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result<TFailed>, Exception, TRet> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
-                _ => default
+                OptionState.Canceled => default,
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
 
         public TRet MatchSuccessOrCanceled<TRet>(Func<Result<TSuccess>, TRet> onSuccess, Func<Result<TCanceled>, Exception, TRet> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
+                OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled(), GetError()),
-                _ => default
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
 
         public TRet MatchFailedOrCanceled<TRet>(Func<Result<TFailed>, Exception, TRet> onFailed, Func<Result<TCanceled>, Exception, TRet> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             return _state switch {
+                OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled(), GetError()),
-                _ => default
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
+        }
+
+        public TRet MatchFailedOrCanceled<TRet>(Func<Result, Exception, TRet> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            return _state switch {
+                OptionState.Success => default,
+                OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()),
+                OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()),
+                _ => throw ErrorFactory.Option.InvalidOperationMatch()
+            };
+        }
+        #endregion
+
+        #region Match_Action
+        public void Match(Action onSuccess, Action onFailed, Action onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(); break;
+                case OptionState.Failed: onFailed.Invoke(); break;
+                case OptionState.Canceled: onCanceled.Invoke(); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void Match(Action onSuccess, Action onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(); break;
+                case OptionState.Failed:
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchSuccessOrFailed(Action onSuccess, Action onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(); break;
+                case OptionState.Failed: onFailed.Invoke(); break;
+                case OptionState.Canceled: break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchSuccessOrCanceled(Action onSuccess, Action onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(); break;
+                case OptionState.Failed: onFailed.Invoke(); break;
+                case OptionState.Canceled: break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchFailedOrCanceled(Action onFailed, Action onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            switch (_state) {
+                case OptionState.Success: break;
+                case OptionState.Failed: onFailed.Invoke(); break;
+                case OptionState.Canceled: onCanceled.Invoke(); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchFailedOrCanceled(Action onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: break;
+                case OptionState.Failed:
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void Match(Action<Result<TSuccess>> onSuccess, Action<Result<TFailed>> onFailed, Action<Result<TCanceled>> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: onFailed.Invoke(GetResultFailed()); break;
+                case OptionState.Canceled: onCanceled.Invoke(GetResultCanceled()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void Match(Action<Result<TSuccess>> onSuccess, Action<Result> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: onFailedOrCanceled.Invoke(GetResultFailed().ToResult()); break;
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchSuccessOrFailed(Action<Result<TSuccess>> onSuccess, Action<Result<TFailed>> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: onFailed.Invoke(GetResultFailed()); break;
+                case OptionState.Canceled: break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchSuccessOrCanceled(Action<Result<TSuccess>> onSuccess, Action<Result<TCanceled>> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: break;
+                case OptionState.Canceled: onCanceled.Invoke(GetResultCanceled()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchFailedOrCanceled(Action<Result<TSuccess>> onSuccess, Action<Result<TFailed>> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: onFailed.Invoke(GetResultFailed()); break;
+                case OptionState.Canceled: break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchFailedOrCanceled(Action<Result> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: break;
+                case OptionState.Failed: onFailedOrCanceled.Invoke(GetResultFailed().ToResult()); break;
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
         }
 
         public void Match(
@@ -248,6 +625,10 @@ namespace ResultLib {
             Action<Exception> onFailed,
             Action<Exception> onCanceled
         ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
@@ -256,7 +637,22 @@ namespace ResultLib {
             }
         }
 
+        public void Match(Action<Result<TSuccess>> onSuccess, Action<Exception> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed:
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetError()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
         public void MatchSuccessOrFailed(Action<Result<TSuccess>> onSuccess, Action<Exception> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
@@ -266,6 +662,9 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrCanceled(Action<Result<TSuccess>> onSuccess, Action<Exception> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: break;
@@ -275,10 +674,24 @@ namespace ResultLib {
         }
 
         public void MatchFailedOrCanceled(Action<Exception> onFailed, Action<Exception> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: break;
                 case OptionState.Failed: onFailed.Invoke(GetError()); break;
                 case OptionState.Canceled: onCanceled.Invoke(GetError()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
+        public void MatchFailedOrCanceled(Action<Exception> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: break;
+                case OptionState.Failed:
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetError()); break;
                 default: throw ErrorFactory.Option.InvalidOperationMatch();
             }
         }
@@ -288,6 +701,10 @@ namespace ResultLib {
             Action<Result<TFailed>, Exception> onFailed,
             Action<Result<TCanceled>, Exception> onCanceled
         ) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: onFailed.Invoke(GetResultFailed(), GetError()); break;
@@ -296,7 +713,22 @@ namespace ResultLib {
             }
         }
 
+        public void Match(Action<Result<TSuccess>> onSuccess, Action<Result, Exception> onFailedOrCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
+                case OptionState.Failed: onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()); break;
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+
         public void MatchSuccessOrFailed(Action<Result<TSuccess>> onSuccess, Action<Result<TFailed>, Exception> onFailed) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onFailed);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: onFailed.Invoke(GetResultFailed(), GetError()); break;
@@ -306,6 +738,9 @@ namespace ResultLib {
         }
 
         public void MatchSuccessOrCanceled(Action<Result<TSuccess>> onSuccess, Action<Result<TCanceled>, Exception> onCanceled) {
+            ThrowIfNull(onSuccess);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: onSuccess.Invoke(GetResultSuccess()); break;
                 case OptionState.Failed: break;
@@ -315,6 +750,9 @@ namespace ResultLib {
         }
 
         public void MatchFailedOrCanceled(Action<Result<TFailed>, Exception> onFailed, Action<Result<TCanceled>, Exception> onCanceled) {
+            ThrowIfNull(onFailed);
+            ThrowIfNull(onCanceled);
+
             switch (_state) {
                 case OptionState.Success: break;
                 case OptionState.Failed: onFailed.Invoke(GetResultFailed(), GetError()); break;
@@ -322,6 +760,18 @@ namespace ResultLib {
                 default: throw ErrorFactory.Option.InvalidOperationMatch();
             }
         }
+
+        public void MatchFailedOrCanceled(Action<Result, Exception> onFailedOrCanceled) {
+            ThrowIfNull(onFailedOrCanceled);
+
+            switch (_state) {
+                case OptionState.Success: break;
+                case OptionState.Failed: onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()); break;
+                case OptionState.Canceled: onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()); break;
+                default: throw ErrorFactory.Option.InvalidOperationMatch();
+            }
+        }
+        #endregion
 
         public bool Equals(Option<TSuccess, TFailed, TCanceled> other) {
             return (_state, other._state) switch {

@@ -1,0 +1,15 @@
+using System.Runtime.CompilerServices;
+
+namespace ResultLib.Core {
+    static internal class ArgumentNullException {
+#if NET5_0_OR_GREATER
+        static internal void ThrowIfNull(object argument, [CallerArgumentExpression(nameof(argument))] string paramName = "") {
+            System.ArgumentNullException.ThrowIfNull(argument, paramName);
+        }
+#else
+        static internal void ThrowIfNull(object argument) {
+            if (argument is null) throw new System.ArgumentNullException();
+        }
+#endif
+    }
+}
