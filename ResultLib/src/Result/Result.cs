@@ -86,7 +86,6 @@ namespace ResultLib {
                 : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
         }
 
-
         public Exception UnwrapErr() {
             if (!IsError()) throw new Exception(ErrorFactory.Result.OperationUnwrapErrWhenOk);
             if (_error == null) throw new Exception(ErrorFactory.Result.EmptyConstructor);
@@ -116,7 +115,7 @@ namespace ResultLib {
         public bool Equals(Result other) {
             return (_state, other._state) switch {
                 (ResultState.Ok, ResultState.Ok) => EqualityComparer<object>.Default.Equals(_value, other._value),
-                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.OrdinalIgnoreCase),
+                (ResultState.Error, ResultState.Error) => string.Equals(_error, other._error, StringComparison.InvariantCultureIgnoreCase),
                 _ => false
             };
         }
