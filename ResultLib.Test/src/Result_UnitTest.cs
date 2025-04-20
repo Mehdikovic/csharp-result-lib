@@ -15,4 +15,10 @@ public class Tests {
             Assert.That(!result.IsOk());
         });
     }
+    
+    [Test]
+    public void Test_DefaultConstructorShouldReturnEmptyConstructorError() {
+        var result = new Result();
+        Assert.That(result.IsError(out string errorMessage) && errorMessage == "Result:: Must be instantiated with Static Methods or Factory.");
+    }
 }
