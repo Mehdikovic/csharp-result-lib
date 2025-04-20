@@ -6,7 +6,7 @@ using System;
 
 using ResultLib.Core;
 
-using static System.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullException;
 
 namespace ResultLib {
     public interface IOption<out T> {
@@ -119,7 +119,7 @@ namespace ResultLib {
                 _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
-        
+
         public TRet Match<TRet>(Func<TRet> onSuccess, Func<TRet> onFailedOrCanceled) {
             ThrowIfNull(onSuccess);
             ThrowIfNull(onFailedOrCanceled);
@@ -195,7 +195,7 @@ namespace ResultLib {
                 _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
-        
+
         public TRet Match<TRet>(Func<Result<T>, TRet> onSuccess, Func<Result<T>, TRet> onFailedOrCanceled) {
             ThrowIfNull(onSuccess);
             ThrowIfNull(onFailedOrCanceled);
@@ -271,7 +271,7 @@ namespace ResultLib {
                 _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
-        
+
         public TRet Match<TRet>(Func<Result<T>, TRet> onSuccess, Func<Exception, TRet> onFailedOrCanceled) {
             ThrowIfNull(onSuccess);
             ThrowIfNull(onFailedOrCanceled);
@@ -347,7 +347,7 @@ namespace ResultLib {
                 _ => throw ErrorFactory.Option.InvalidOperationMatch()
             };
         }
-        
+
         public TRet Match<TRet>(Func<Result<T>, TRet> onSuccess, Func<Result<T>, Exception, TRet> onFailedOrCanceled) {
             ThrowIfNull(onSuccess);
             ThrowIfNull(onFailedOrCanceled);

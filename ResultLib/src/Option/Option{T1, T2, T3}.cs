@@ -6,7 +6,7 @@ using System;
 
 using ResultLib.Core;
 
-using static System.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullException;
 
 namespace ResultLib {
     public interface IOption<out TSuccess, out TFailed, out TCanceled> {
