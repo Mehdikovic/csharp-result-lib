@@ -8,22 +8,28 @@ using ResultLib.Core;
 using static ResultLib.Core.ArgumentNullExceptionExtension;
 
 namespace ResultLib {
-    public struct Result : IEquatable<Result>, IComparable<Result> {
-        private ResultState _state;
-        private string _error;
-        private object _value;
+    public readonly struct Result : IEquatable<Result>, IComparable<Result> {
+        private readonly ResultState _state;
+        private readonly string _error;
+        private readonly object _value;
+
+        private Result(ResultState state, string error, object value) {
+            _state = state;
+            _error = error;
+            _value = value;
+        }
 
         static public Result Ok() =>
-            new Result { _state = ResultState.Ok };
+            new Result(ResultState.Ok, error: null, value: null);
 
         static public Result Ok(object value) =>
-            new Result { _state = ResultState.Ok, _value = value };
+            new Result(ResultState.Ok, error: null, value: value);
 
         static public Result Error() =>
-            new Result { _state = ResultState.Error, _error = ErrorFactory.Result.Default };
+            new Result(ResultState.Error, error: ErrorFactory.Result.Default, value: null);
 
         static public Result Error(string error) =>
-            new Result { _state = ResultState.Error, _error = error ?? string.Empty };
+            new Result(ResultState.Error, error: error ?? string.Empty, value: null);
 
         static public Result FromRequired(object value) =>
             value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
@@ -112,7 +118,7 @@ namespace ResultLib {
                 _ => throw new Exception(ErrorFactory.Result.OperationMatch)
             };
         }
-        
+
         public TRet Match<TRet>(Func<TRet> onOk, Func<TRet> onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);
@@ -134,7 +140,7 @@ namespace ResultLib {
                 default: throw new Exception(ErrorFactory.Result.OperationMatch);
             }
         }
-        
+
         public void Match(Action onOk, Action onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);

@@ -22,92 +22,104 @@ namespace ResultLib {
         Exception GetError();
     }
 
-    public struct Option<TSuccess, TFailed, TCanceled> :
+    public readonly struct Option<TSuccess, TFailed, TCanceled> :
         IOption<TSuccess, TFailed, TCanceled>,
         IEquatable<Option<TSuccess, TFailed, TCanceled>>,
         IComparable<Option<TSuccess, TFailed, TCanceled>> {
-        private OptionState _state;
-        private Result<TSuccess> _valueSuccess;
-        private Result<TFailed> _valueFailed;
-        private Result<TCanceled> _valueCanceled;
-        private Exception _error;
+        private readonly OptionState _state;
+        private readonly Result<TSuccess> _valueSuccess;
+        private readonly Result<TFailed> _valueFailed;
+        private readonly Result<TCanceled> _valueCanceled;
+        private readonly Exception _error;
 
+        private Option(OptionState state, Exception error, Result<TSuccess> success, Result<TFailed> failed, Result<TCanceled> canceled) {
+            _state = state;
+            _error = error;
+            _valueSuccess = success;
+            _valueFailed = failed;
+            _valueCanceled = canceled;
+        }
 
         static public Option<TSuccess, TFailed, TCanceled> Success() =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Success,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Success,
+                error: null,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Success(TSuccess value) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Success,
-                _valueSuccess = Result<TSuccess>.FromRequired(value),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Success,
+                error: null,
+                success: Result<TSuccess>.FromRequired(value),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Failed() =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Failed,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: null,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(string error) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Failed,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-                _error = ErrorFactory.Option.Create(error),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: ErrorFactory.Option.Create(error),
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(string error, TFailed value) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Failed,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.FromRequired(value),
-                _valueCanceled = Result<TCanceled>.Error(),
-                _error = ErrorFactory.Option.Create(error),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: ErrorFactory.Option.Create(error),
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.FromRequired(value),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(Exception exception) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Failed,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-                _error = exception,
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: exception,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Failed(Exception exception, TFailed value) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Failed,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.FromRequired(value),
-                _valueCanceled = Result<TCanceled>.Error(),
-                _error = exception,
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: exception,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.FromRequired(value),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Canceled() =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Canceled,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.Error(),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Canceled,
+                error: null,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.Error()
+            );
 
         static public Option<TSuccess, TFailed, TCanceled> Canceled(TCanceled value) =>
-            new Option<TSuccess, TFailed, TCanceled> {
-                _state = OptionState.Canceled,
-                _valueSuccess = Result<TSuccess>.Error(),
-                _valueFailed = Result<TFailed>.Error(),
-                _valueCanceled = Result<TCanceled>.FromRequired(value),
-            };
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Canceled,
+                error: null,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.Error(),
+                canceled: Result<TCanceled>.FromRequired(value)
+            );
 
         public bool IsSuccess() => _state == OptionState.Success;
         public bool IsSuccess(out Result<TSuccess> value) {

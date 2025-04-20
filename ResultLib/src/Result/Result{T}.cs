@@ -17,22 +17,28 @@ namespace ResultLib {
         public Exception UnwrapErr();
     }
 
-    public struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
-        private ResultState _state;
-        private string _error;
-        private T _value;
+    public readonly struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
+        private readonly ResultState _state;
+        private readonly string _error;
+        private readonly T _value;
+
+        private Result(ResultState state, string error, T value) {
+            _state = state;
+            _error = error;
+            _value = value;
+        }
 
         static public Result<T> Ok() =>
-            new Result<T> { _state = ResultState.Ok };
+            new Result<T>(ResultState.Ok, error: null, value: default);
 
         static public Result<T> Ok(T value) =>
-            new Result<T> { _state = ResultState.Ok, _value = value };
+            new Result<T>(ResultState.Ok, error: null, value: value);
 
         static public Result<T> Error() =>
-            new Result<T> { _state = ResultState.Error, _error = ErrorFactory.Result.Default };
+            new Result<T>(ResultState.Error, error: ErrorFactory.Result.Default, value: default);
 
         static public Result<T> Error(string error) =>
-            new Result<T> { _state = ResultState.Error, _error = error ?? string.Empty };
+            new Result<T>(ResultState.Error, error: error ?? string.Empty, value: default);
 
         static public Result<T> FromRequired(T value) =>
             value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
@@ -103,7 +109,7 @@ namespace ResultLib {
                 _ => throw new Exception(ErrorFactory.Result.OperationMatch)
             };
         }
-        
+
         public TRet Match<TRet>(Func<TRet> onOk, Func<TRet> onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);
@@ -125,7 +131,7 @@ namespace ResultLib {
                 default: throw new Exception(ErrorFactory.Result.OperationMatch);
             }
         }
-        
+
         public void Match(Action onOk, Action onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);
