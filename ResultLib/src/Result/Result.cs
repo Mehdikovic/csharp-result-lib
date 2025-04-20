@@ -112,6 +112,17 @@ namespace ResultLib {
                 _ => throw new Exception(ErrorFactory.Result.OperationMatch)
             };
         }
+        
+        public TRet Match<TRet>(Func<TRet> onOk, Func<TRet> onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
+            return _state switch {
+                ResultState.Ok => onOk.Invoke(),
+                ResultState.Error => onError.Invoke(),
+                _ => throw new Exception(ErrorFactory.Result.OperationMatch)
+            };
+        }
 
         public void Match(Action<object> onOk, Action<Exception> onError) {
             ThrowIfNull(onOk);
@@ -120,6 +131,17 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
+                default: throw new Exception(ErrorFactory.Result.OperationMatch);
+            }
+        }
+        
+        public void Match(Action onOk, Action onError) {
+            ThrowIfNull(onOk);
+            ThrowIfNull(onError);
+
+            switch (_state) {
+                case ResultState.Ok: onOk.Invoke(); break;
+                case ResultState.Error: onError.Invoke(); break;
                 default: throw new Exception(ErrorFactory.Result.OperationMatch);
             }
         }
