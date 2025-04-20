@@ -5,9 +5,9 @@
 using System;
 using System.Collections.Generic;
 
-using static System.ArgumentNullException;
-
 using ResultLib.Core;
+
+using static ResultLib.Core.ArgumentNullExceptionExtension;
 
 namespace ResultLib {
     public interface IResult<out T> {
@@ -17,10 +17,10 @@ namespace ResultLib {
         public Exception UnwrapErr();
     }
 
-    public struct Result<T>() : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
-        private ResultState _state = ResultState.Error;
-        private string _error = ErrorFactory.Result.EmptyConstructor;
-        private T _value = default;
+    public struct Result<T> : IResult<T>, IEquatable<Result<T>>, IComparable<Result<T>> {
+        private ResultState _state;
+        private string _error;
+        private T _value;
 
         static public Result<T> Ok() =>
             new Result<T> { _state = ResultState.Ok };

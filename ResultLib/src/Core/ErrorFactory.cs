@@ -45,7 +45,6 @@ namespace ResultLib.Core {
             internal const string AttemptToCreateOk = "Result:: object value could not be null";
             internal const string AttemptToForwardError = "Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.";
             internal const string SomeReturnNull = "Result:: Some method must return a value which is not null";
-            internal const string SomeDefaultValueOfNull = "Result:: Some method cannot accept default value of null";
             internal const string OperationUnwrapWhenError = "Result:: can not unwrap Result with State of [Error]";
             internal const string OperationUnwrapErrWhenOk = "Result:: can not unwrap Result with State of [Ok]";
             internal const string OperationMatch ="Result:: state is not recognized. Should be [Ok] or [Error]";

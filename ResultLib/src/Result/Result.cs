@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 using ResultLib.Core;
 
-using static System.ArgumentNullException;
+using static ResultLib.Core.ArgumentNullExceptionExtension;
 
 namespace ResultLib {
-    public struct Result() : IEquatable<Result>, IComparable<Result> {
-        private ResultState _state = ResultState.Error;
-        private string _error = ErrorFactory.Result.EmptyConstructor;
-        private object _value = default;
+    public struct Result : IEquatable<Result>, IComparable<Result> {
+        private ResultState _state;
+        private string _error;
+        private object _value;
 
         static public Result Ok() =>
             new Result { _state = ResultState.Ok };
