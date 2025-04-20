@@ -20,8 +20,8 @@ namespace ResultLib {
 
             if (option.IsFailed(out result)) {
                 return result.Some(out T value)
-                    ? Option<T>.Failed(option.GetError(), value)
-                    : Option<T>.Failed(option.GetError());
+                    ? Option<T>.Failed(option.GetErrorInternal(), value)
+                    : Option<T>.Failed(option.GetErrorInternal());
             }
 
             if (option.IsCanceled(out result)) {
@@ -50,7 +50,7 @@ namespace ResultLib {
             if (option.IsFailed(out result)) {
                 if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Failed();
                 return result.Some<TFailed>(out var some)
-                    ? Option<TSuccess, TFailed, TCanceled>.Failed(option.GetError(), some)
+                    ? Option<TSuccess, TFailed, TCanceled>.Failed(option.GetErrorInternal(), some)
                     : Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidExplicitUnboxingCast(obj.GetType(), typeof(TFailed)));
             }
 

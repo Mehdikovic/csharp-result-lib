@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 
 namespace ResultLib.Core {
-    static internal class ArgumentNullException {
+    static internal class ArgumentNullExceptionExtension {
 #if NET5_0_OR_GREATER
         static internal void ThrowIfNull(object argument, [CallerArgumentExpression(nameof(argument))] string paramName = "") {
             System.ArgumentNullException.ThrowIfNull(argument, paramName);
