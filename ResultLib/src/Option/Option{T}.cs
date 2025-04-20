@@ -20,38 +20,43 @@ namespace ResultLib {
         Exception GetError();
     }
 
-    public struct Option<T> : IOption<T>, IEquatable<Option<T>>, IComparable<Option<T>> {
-        private OptionState _state;
-        private Result<T> _value;
-        private Exception _error;
+    public readonly struct Option<T> : IOption<T>, IEquatable<Option<T>>, IComparable<Option<T>> {
+        private readonly OptionState _state;
+        private readonly Result<T> _value;
+        private readonly Exception _error;
 
+        private Option(OptionState state, Exception error, Result<T> value) {
+            _state = state;
+            _error = error;
+            _value = value;
+        }
         
         static public Option<T> Success() =>
-            new Option<T> { _state = OptionState.Success, _value = Result<T>.Error() };
+            new Option<T>(OptionState.Success, error: null, value: Result<T>.Error());
 
         static public Option<T> Success(T value) =>
-            new Option<T> { _state = OptionState.Success, _value = Result<T>.FromRequired(value) };
+            new Option<T>(OptionState.Success, error: null, value: Result<T>.FromRequired(value));
 
         static public Option<T> Failed() =>
-            new Option<T> { _state = OptionState.Failed, _value = Result<T>.Error() };
+            new Option<T>(OptionState.Failed, error: null, value: Result<T>.Error());
 
         static public Option<T> Failed(string error) =>
-            new Option<T> { _state = OptionState.Failed, _value = Result<T>.Error() };
+            new Option<T>(OptionState.Failed, error: ErrorFactory.Option.Create(error), value: Result<T>.Error());
 
         static public Option<T> Failed(string error, T value) =>
-            new Option<T> { _state = OptionState.Failed, _value = Result<T>.FromRequired(value) };
+            new Option<T>(OptionState.Failed, error: ErrorFactory.Option.Create(error), value: Result<T>.FromRequired(value));
 
         static public Option<T> Failed(Exception exception) =>
-            new Option<T> { _state = OptionState.Failed, _error = exception, _value = Result<T>.Error() };
+            new Option<T>(OptionState.Failed, error: exception, value: Result<T>.Error());
 
         static public Option<T> Failed(Exception exception, T value) =>
-            new Option<T> { _state = OptionState.Failed, _error = exception, _value = Result<T>.FromRequired(value) };
+            new Option<T>(OptionState.Failed, error: exception, value: Result<T>.FromRequired(value));
 
         static public Option<T> Canceled() =>
-            new Option<T> { _state = OptionState.Canceled, _value = Result<T>.Error() };
+            new Option<T>(OptionState.Canceled, error: null, value: Result<T>.Error());
 
         static public Option<T> Canceled(T value) =>
-            new Option<T> { _state = OptionState.Canceled, _value = Result<T>.FromRequired(value) };
+            new Option<T>(OptionState.Canceled, error: null, value: Result<T>.FromRequired(value));
 
         public bool IsSuccess() => _state == OptionState.Success;
         public bool IsSuccess(out Result<T> value) {
