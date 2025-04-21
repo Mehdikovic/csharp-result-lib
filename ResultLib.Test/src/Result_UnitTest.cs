@@ -108,6 +108,19 @@ public class Tests {
     }
     
     [Test]
+    public void Test_Unwrap_With_Func_Should_Throw_Exception_If_Func_Is_Null_And_Error() {
+        var result = Result.Error();
+        Assert.Throws<ArgumentNullException>(() => result.Unwrap(func: null));
+    }
+    
+    [Test]
+    public void Test_Unwrap_With_Null_Func_Should_Not_Throw_Exception_If_Is_Ok() {
+        var result = Result.Ok();
+        Assert.DoesNotThrow(() => result.Unwrap(func: null));
+        Assert.That(result.Unwrap(func: null), Is.EqualTo(null));
+    }
+    
+    [Test]
     public void Test_Unwrap_With_Null_Func_Should_Throws_Exception_When_Error() {
         var result = Result.Error();
         Assert.Throws<ArgumentNullException>(() => result.Unwrap(null));
