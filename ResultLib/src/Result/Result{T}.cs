@@ -69,24 +69,26 @@ namespace ResultLib {
 
         public T Unwrap() => IsOk() ? _value : throw new ResultUnwrapException();
         public T Unwrap(T defaultValue) => IsOk() ? _value : defaultValue;
-        public T Unwrap(Func<T> func) => IsOk() ? _value : func.Invoke();
+        public T Unwrap(Func<T> func) {
+            if (IsOk()) return _value;
+            ThrowIfNull(func);
+            return func.Invoke();
+        }
 
         public bool Some(out T value) => IsOk(out value) && value != null;
 
         public T Some(T defaultValue) {
+            if (IsOk(out var value)) return value;
             ThrowIfNull(defaultValue);
-
-            return IsOk(out var value) && value != null
-                ? value
-                : defaultValue;
+            return defaultValue;
         }
 
         public T Some(Func<T> func) {
+            if (IsOk(out var value)) return value;
             ThrowIfNull(func);
-
-            return IsOk(out var value) && value != null
-                ? value
-                : (func.Invoke() ?? throw new ResultInvalidSomeOperationException());
+            var newValueFromSomeFunc = func.Invoke();
+            if (newValueFromSomeFunc == null) throw new ResultInvalidSomeOperationException();
+            return newValueFromSomeFunc;
         }
 
         public ResultException UnwrapErr() {

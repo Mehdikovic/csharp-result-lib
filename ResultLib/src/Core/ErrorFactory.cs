@@ -46,8 +46,8 @@ namespace ResultLib.Core {
     public class ResultDefaultConstructorException() : ResultException(ErrorFactory.Result.EmptyConstructor);
     
     public class ResultUnwrapException() : ResultException("Result:: can not unwrap Result with State of [Error]");
-    public class ResultUnwrapErrorException() : ResultException("Result:: can not unwrap Result with State of [Ok]");
-    public class ResultInvalidSomeOperationException() : ResultException("Result:: Some method must return a value which is not null");
+    public class ResultUnwrapErrorException() : ResultException("Result:: can not unwrap error with State of [Ok]");
+    public class ResultInvalidSomeOperationException() : ResultException("Result:: Some Func delegate must return a value which is not null");
     public class ResultInvalidMatchException() : ResultException("Result:: state is not recognized. Should be [Ok] or [Error]");
     public class ResultInvalidForwardException() : ResultException("Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.");
     public class ResultInvalidBoxingCastException(Type type) 

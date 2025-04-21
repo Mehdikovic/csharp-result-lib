@@ -60,42 +60,42 @@ namespace ResultLib {
 
         public object Unwrap() => IsOk() ? _value : throw new ResultUnwrapException();
         public object Unwrap(object defaultValue) => IsOk() ? _value : defaultValue;
-        public object Unwrap(Func<object> defaultGetter) => IsOk() ? _value : defaultGetter.Invoke();
+        public object Unwrap(Func<object> func) {
+            if (IsOk()) return _value;
+            ThrowIfNull(func);
+            return func.Invoke();
+        }
 
         public bool Some(out object value) => IsOk(out value) && value != null;
 
         public object Some(object defaultValue) {
+            if (IsOk(out object value) && value != null) return value;
             ThrowIfNull(defaultValue);
-
-            return IsOk(out object value) && value != null
-                ? value
-                : defaultValue;
+            return defaultValue;
         }
 
         public object Some(Func<object> func) {
+            if (IsOk(out object value) && value != null) return value;
             ThrowIfNull(func);
-
-            return IsOk(out object value) && value != null
-                ? value
-                : (func.Invoke() ?? throw new ResultInvalidSomeOperationException());
+            object newValueFromSomeFunc = func.Invoke();
+            if (newValueFromSomeFunc == null) throw new ResultInvalidSomeOperationException();
+            return newValueFromSomeFunc;
         }
 
         public bool Some<T>(out T value) => IsOk(out value);
 
         public T Some<T>(T defaultValue) {
+            if (IsOk(out T value)) return value;
             ThrowIfNull(defaultValue);
-
-            return IsOk(out T value)
-                ? value
-                : defaultValue;
+            return defaultValue;
         }
 
         public T Some<T>(Func<T> func) {
+            if (IsOk(out T value)) return value;
             ThrowIfNull(func);
-
-            return IsOk(out T value)
-                ? value
-                : (func.Invoke() ?? throw new ResultInvalidSomeOperationException());
+            var newValueFromSomeFunc = func.Invoke();
+            if (newValueFromSomeFunc == null) throw new ResultInvalidSomeOperationException();
+            return newValueFromSomeFunc;
         }
 
         public ResultException UnwrapErr() {
