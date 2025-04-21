@@ -58,7 +58,7 @@ namespace ResultLib {
             return false;
         }
 
-        public object Unwrap() => IsOk() ? _value : throw new Exception(ErrorFactory.Result.OperationUnwrapWhenError);
+        public object Unwrap() => IsOk() ? _value : throw new ResultUnwrapException();
         public object Unwrap(object defaultValue) => IsOk() ? _value : defaultValue;
         public object Unwrap(Func<object> defaultGetter) => IsOk() ? _value : defaultGetter.Invoke();
 
@@ -77,7 +77,7 @@ namespace ResultLib {
 
             return IsOk(out object value) && value != null
                 ? value
-                : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
+                : (func.Invoke() ?? throw new ResultInvalidSomeOperationException());
         }
 
         public bool Some<T>(out T value) => IsOk(out value);
@@ -95,27 +95,30 @@ namespace ResultLib {
 
             return IsOk(out T value)
                 ? value
-                : (func.Invoke() ?? throw new Exception(ErrorFactory.Result.SomeReturnNull));
+                : (func.Invoke() ?? throw new ResultInvalidSomeOperationException());
         }
 
-        public Exception UnwrapErr() {
-            if (!IsError()) throw new Exception(ErrorFactory.Result.OperationUnwrapErrWhenOk);
-            if (_error == null) throw new Exception(ErrorFactory.Result.EmptyConstructor);
-            return new Exception(_error);
+        public ResultException UnwrapErr() {
+            if (!IsError()) throw new ResultUnwrapErrorException();
+            if (_error == null) throw new ResultDefaultConstructorException();
+            return new ResultException(_error);
         }
 
         public void ThrowIfError() {
-            if (IsError()) throw new Exception(_error ?? ErrorFactory.Result.EmptyConstructor);
+            if (!IsError()) return;
+            if (_error.IsEmpty())
+                throw new ResultDefaultConstructorException();
+            throw new ResultException(_error);
         }
 
-        public TRet Match<TRet>(Func<object, TRet> onOk, Func<Exception, TRet> onError) {
+        public TRet Match<TRet>(Func<object, TRet> onOk, Func<ResultException, TRet> onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);
 
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
-                _ => throw new Exception(ErrorFactory.Result.OperationMatch)
+                _ => throw new ResultInvalidMatchException()
             };
         }
 
@@ -126,18 +129,18 @@ namespace ResultLib {
             return _state switch {
                 ResultState.Ok => onOk.Invoke(),
                 ResultState.Error => onError.Invoke(),
-                _ => throw new Exception(ErrorFactory.Result.OperationMatch)
+                _ => throw new ResultInvalidMatchException()
             };
         }
 
-        public void Match(Action<object> onOk, Action<Exception> onError) {
+        public void Match(Action<object> onOk, Action<ResultException> onError) {
             ThrowIfNull(onOk);
             ThrowIfNull(onError);
 
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
-                default: throw new Exception(ErrorFactory.Result.OperationMatch);
+                default: throw new ResultInvalidMatchException();
             }
         }
 
@@ -148,7 +151,7 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(); break;
                 case ResultState.Error: onError.Invoke(); break;
-                default: throw new Exception(ErrorFactory.Result.OperationMatch);
+                default: throw new ResultInvalidMatchException();
             }
         }
 
@@ -179,8 +182,8 @@ namespace ResultLib {
         public int CompareTo(Result other) {
             return (_state, other._state) switch {
                 (ResultState.Ok, ResultState.Ok) => Comparer<object>.Default.Compare(_value, other._value),
-                (ResultState.Ok, ResultState.Error) => -1,
-                (ResultState.Error, ResultState.Ok) => 1,
+                (ResultState.Ok, ResultState.Error) => 1,
+                (ResultState.Error, ResultState.Ok) => -1,
                 _ => 0
             };
         }

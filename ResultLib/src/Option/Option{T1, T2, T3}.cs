@@ -831,28 +831,28 @@ namespace ResultLib {
         public int CompareTo(Option<TSuccess, TFailed, TCanceled> other) {
             return (_state, other._state) switch {
                 (OptionState.Success, OptionState.Success) => _valueSuccess.CompareTo(other._valueSuccess),
-                (OptionState.Success, OptionState.Failed) => -1,
-                (OptionState.Success, OptionState.Canceled) => -1,
+                (OptionState.Success, OptionState.Failed) => 1,
+                (OptionState.Success, OptionState.Canceled) => 1,
                 (OptionState.Failed, OptionState.Failed) =>
-                    (_valueFailed.IsOk() && other._valueFailed.IsOk())
+                    _valueFailed.IsOk() && other._valueFailed.IsOk()
                         ? _valueFailed.CompareTo(other._valueFailed)
                         : _valueFailed.IsOk()
-                            ? -1
+                            ? 1
                             : other._valueFailed.IsOk()
-                                ? 1
+                                ? -1
                                 : 0,
-                (OptionState.Failed, OptionState.Success) => 1,
-                (OptionState.Failed, OptionState.Canceled) => -1,
+                (OptionState.Failed, OptionState.Success) => -1,
+                (OptionState.Failed, OptionState.Canceled) => 1,
                 (OptionState.Canceled, OptionState.Canceled) =>
-                    (_valueCanceled.IsOk() && other._valueCanceled.IsOk())
+                    _valueCanceled.IsOk() && other._valueCanceled.IsOk()
                         ? _valueCanceled.CompareTo(other._valueCanceled)
                         : _valueCanceled.IsOk()
-                            ? -1
+                            ? 1
                             : other._valueCanceled.IsOk()
-                                ? 1
+                                ? -1
                                 : 0,
-                (OptionState.Canceled, OptionState.Success) => 1,
-                (OptionState.Canceled, OptionState.Failed) => 1,
+                (OptionState.Canceled, OptionState.Success) => -1,
+                (OptionState.Canceled, OptionState.Failed) => -1,
                 _ => 0
             };
         }

@@ -15,5 +15,6 @@ namespace ResultLib.Core {
 
     static internal class StringExtensions {
         static public string Format(this string format, params object[] args) => string.Format(format, args);
+        static public bool IsEmpty(this string str) => string.IsNullOrEmpty(str);
     }
 }

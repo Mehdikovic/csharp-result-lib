@@ -36,23 +36,24 @@ namespace ResultLib.Core {
         }
 
         internal static class Result {
-            private const string ImplicitUnboxingCast = "Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in implicit conversion";
-            private const string ExplicitUnboxingCast = "Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in explicit conversion.";
-            private const string BoxingCast = "Result:: Cannot create Result from Result<T>. T: {0}";
-
             internal const string Default = "Result:: Something went wrong.";
             internal const string EmptyConstructor = "Result:: Must be instantiated with Static Methods or Factory.";
             internal const string AttemptToCreateOk = "Result:: object value could not be null";
-            internal const string AttemptToForwardError = "Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.";
-            internal const string SomeReturnNull = "Result:: Some method must return a value which is not null";
-            internal const string OperationUnwrapWhenError = "Result:: can not unwrap Result with State of [Error]";
-            internal const string OperationUnwrapErrWhenOk = "Result:: can not unwrap Result with State of [Ok]";
-            internal const string OperationMatch ="Result:: state is not recognized. Should be [Ok] or [Error]";
-
-
-            static internal readonly Func<Type, Type, string> CreateImplicitUnboxingCast = (from, to) => ImplicitUnboxingCast.Format(from.Name, to.Name);
-            static internal readonly Func<Type, Type, string> CreateExplicitUnboxingCast = (from, to) => ExplicitUnboxingCast.Format(from.Name, to.Name);
-            static internal readonly Func<Type, string> CreateBoxingCast = (from) => BoxingCast.Format(from.Name);
         }
     }
+
+    public class ResultException(string message) : Exception(message) {}
+    public class ResultDefaultConstructorException() : ResultException(ErrorFactory.Result.EmptyConstructor);
+    
+    public class ResultUnwrapException() : ResultException("Result:: can not unwrap Result with State of [Error]");
+    public class ResultUnwrapErrorException() : ResultException("Result:: can not unwrap Result with State of [Ok]");
+    public class ResultInvalidSomeOperationException() : ResultException("Result:: Some method must return a value which is not null");
+    public class ResultInvalidMatchException() : ResultException("Result:: state is not recognized. Should be [Ok] or [Error]");
+    public class ResultInvalidForwardException() : ResultException("Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.");
+    public class ResultInvalidBoxingCastException(Type type) 
+        : ResultException("Result:: Cannot create Result from Result<T>. T: {0}".Format(type.Name));
+    public class ResultInvalidImplicitCastException(Type from, Type to) 
+        : ResultException("Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in implicit conversion".Format(from.Name, to.Name));
+    public class ResultInvalidExplicitCastException(Type from, Type to)
+        : ResultException("Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in explicit conversion.".Format(from.Name, to.Name));
 }
