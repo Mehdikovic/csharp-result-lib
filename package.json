@@ -1,6 +1,6 @@
 {
   "name": "com.mehmovic.libs.result",
-  "version": "0.4.33",
+  "version": "0.4.4",
   "displayName": "Result Library",
   "description": "Pseudo Rust Result Library",
   "unity": "2022.3",

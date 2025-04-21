@@ -753,28 +753,28 @@ namespace ResultLib {
         public int CompareTo(Option other) {
             return (_state, other._state) switch {
                 (OptionState.Success, OptionState.Success) => _value.CompareTo(other._value),
-                (OptionState.Success, OptionState.Failed) => -1,
-                (OptionState.Success, OptionState.Canceled) => -1,
+                (OptionState.Success, OptionState.Failed) => 1,
+                (OptionState.Success, OptionState.Canceled) => 1,
                 (OptionState.Failed, OptionState.Failed) =>
                     _value.IsOk() && other._value.IsOk()
                         ? _value.CompareTo(other._value)
                         : _value.IsOk()
-                            ? -1
+                            ? 1
                             : other._value.IsOk()
-                                ? 1
+                                ? -1
                                 : 0,
-                (OptionState.Failed, OptionState.Success) => 1,
-                (OptionState.Failed, OptionState.Canceled) => -1,
+                (OptionState.Failed, OptionState.Success) => -1,
+                (OptionState.Failed, OptionState.Canceled) => 1,
                 (OptionState.Canceled, OptionState.Canceled) =>
                     _value.IsOk() && other._value.IsOk()
                         ? _value.CompareTo(other._value)
                         : _value.IsOk()
-                            ? -1
+                            ? 1
                             : other._value.IsOk()
-                                ? 1
+                                ? -1
                                 : 0,
-                (OptionState.Canceled, OptionState.Success) => 1,
-                (OptionState.Canceled, OptionState.Failed) => 1,
+                (OptionState.Canceled, OptionState.Success) => -1,
+                (OptionState.Canceled, OptionState.Failed) => -1,
                 _ => 0
             };
         }
