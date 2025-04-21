@@ -42,18 +42,47 @@ namespace ResultLib.Core {
         }
     }
 
-    public class ResultException(string message) : Exception(message) {}
-    public class ResultDefaultConstructorException() : ResultException(ErrorFactory.Result.EmptyConstructor);
-    
-    public class ResultUnwrapException() : ResultException("Result:: can not unwrap Result with State of [Error]");
-    public class ResultUnwrapErrorException() : ResultException("Result:: can not unwrap error with State of [Ok]");
-    public class ResultInvalidSomeOperationException() : ResultException("Result:: Some Func delegate must return a value which is not null");
-    public class ResultInvalidMatchException() : ResultException("Result:: state is not recognized. Should be [Ok] or [Error]");
-    public class ResultInvalidForwardException() : ResultException("Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.");
-    public class ResultInvalidBoxingCastException(Type type) 
-        : ResultException("Result:: Cannot create Result from Result<T>. T: {0}".Format(type.Name));
-    public class ResultInvalidImplicitCastException(Type from, Type to) 
-        : ResultException("Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in implicit conversion".Format(from.Name, to.Name));
-    public class ResultInvalidExplicitCastException(Type from, Type to)
-        : ResultException("Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in explicit conversion.".Format(from.Name, to.Name));
+    public class ResultException : Exception {
+        public ResultException(string message) : base(message) { }
+    }
+
+    public class ResultDefaultConstructorException : ResultException {
+        public ResultDefaultConstructorException() : base(ErrorFactory.Result.EmptyConstructor) { }
+    };
+
+    public class ResultUnwrapException : ResultException {
+        public ResultUnwrapException() : base("Result:: can not unwrap Result with State of [Error]") { }
+    };
+
+    public class ResultUnwrapErrorException : ResultException {
+        public ResultUnwrapErrorException() : base("Result:: can not unwrap error with State of [Ok]") { }
+    };
+
+    public class ResultInvalidSomeOperationException : ResultException {
+        public ResultInvalidSomeOperationException() : base("Result:: Some Func delegate must return a value which is not null") { }
+    };
+
+    public class ResultInvalidMatchException : ResultException {
+        public ResultInvalidMatchException() : base("Result:: state is not recognized. Should be [Ok] or [Error]") { }
+    };
+
+    public class ResultInvalidForwardException : ResultException {
+        public ResultInvalidForwardException() : base("Result:: ForwardError is only available for state [Error] to replicate Result.Error() with the error message.") { }
+    };
+
+    public class ResultInvalidBoxingCastException : ResultException {
+        public ResultInvalidBoxingCastException(Type type) : base("Result:: Cannot create Result from Result<T>. T: {0}".Format(type.Name)) { }
+    }
+
+    public class ResultInvalidImplicitCastException : ResultException {
+        public ResultInvalidImplicitCastException(Type from, Type to) : base(
+            "Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in implicit conversion".Format(from.Name, to.Name)
+        ) { }
+    }
+
+    public class ResultInvalidExplicitCastException : ResultException {
+        public ResultInvalidExplicitCastException(Type from, Type to) : base(
+            "Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in explicit conversion.".Format(from.Name, to.Name)
+        ) { }
+    }
 }
