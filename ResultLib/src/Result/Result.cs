@@ -14,34 +14,35 @@ namespace ResultLib {
         private readonly object _value;
         private readonly Exception _innerException;
 
-        private Result(ResultState state, string error, object value) {
+        private Result(ResultState state, string error, Exception innerException, object value) {
             _state = state;
             _error = error.IsEmpty() ? ErrorFactory.Result.Default : error;
-            _value = value;
-            _innerException = null;
-        }
-
-        private Result(ResultState state, Exception innerException, object value) {
-            _state = state;
-            _error = ErrorFactory.Result.Default;
             _value = value;
             _innerException = innerException;
         }
 
+        private Result(ResultState state, object value) : this(state, null, null, value) { }
+        private Result(ResultState state, string error, object value) : this(state, error, null, value) { }
+        private Result(ResultState state, Exception innerException, object value) : this(state, null, innerException, value) { }
+
+        
         static public Result Ok() =>
-            new Result(ResultState.Ok, error: null, value: null);
+            new Result(ResultState.Ok, value: null);
 
         static public Result Ok(object value) =>
-            new Result(ResultState.Ok, error: null, value: value);
+            new Result(ResultState.Ok, value: value);
 
         static public Result Error() =>
-            new Result(ResultState.Error, error: null, value: null);
+            new Result(ResultState.Error, value: null);
 
         static public Result Error(string error) =>
-            new Result(ResultState.Error, error: error, value: null);
+            new Result(ResultState.Error, error, value: null);
 
-        static public Result Error(Exception exception) =>
-            new Result(ResultState.Error, innerException: exception, value: null);
+        static public Result Error(Exception innerException) =>
+            new Result(ResultState.Error, innerException, value: null);
+
+        static internal Result Error(string error, Exception innerException) =>
+            new Result(ResultState.Error, error, innerException, value: null);
 
         static public Result FromRequired(object value) =>
             value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
@@ -68,6 +69,21 @@ namespace ResultLib {
 
             error = null;
             return false;
+        }
+
+        public bool IsError(out ResultException exception) {
+            if (_state == ResultState.Error) {
+                exception = new ResultException(_error ?? ErrorFactory.Result.EmptyConstructor, _innerException);
+                return true;
+            }
+
+            exception = null;
+            return false;
+        }
+        
+        internal bool HasInnerException(out Exception innerException) {
+            innerException = _innerException;
+            return innerException != null;
         }
 
         public object Unwrap() => IsOk() ? _value : throw new ResultUnwrapException();
