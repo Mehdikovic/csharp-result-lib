@@ -242,7 +242,9 @@ namespace ResultLib {
         }
 
         static private Result ToResult(Result<T> result) {
-            if (result.IsError(out string error)) return Result.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result.Error(error, innerException) : Result.Error(error);
+            }
             if (result.IsOk(out var value)) return Result.Ok(value);
 
             throw new ResultInvalidBoxingCastException(typeof(T));
