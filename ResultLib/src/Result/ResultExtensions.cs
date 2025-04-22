@@ -20,22 +20,30 @@ namespace ResultLib {
         }
 
         static public Result ForwardError(this Result result) {
-            if (result.IsError(out string error)) return Result.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result.Error(error, innerException) : Result.Error(error);
+            }
             throw new ResultInvalidForwardException();
         }
-        
+
         static public Result<TTo> ForwardError<TTo>(this Result result) {
-            if (result.IsError(out string error)) return Result<TTo>.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result<TTo>.Error(error, innerException) : Result<TTo>.Error(error);
+            }
             throw new ResultInvalidForwardException();
         }
 
         static public Result ForwardError<TFrom>(this Result<TFrom> result) {
-            if (result.IsError(out string error)) return Result.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result.Error(error, innerException) : Result.Error(error);
+            }
             throw new ResultInvalidForwardException();
         }
 
         static public Result<TTo> ForwardError<TFrom, TTo>(this Result<TFrom> result) {
-            if (result.IsError(out string error)) return Result<TTo>.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result<TTo>.Error(error, innerException) : Result<TTo>.Error(error);
+            }
             throw new ResultInvalidForwardException();
         }
     }
