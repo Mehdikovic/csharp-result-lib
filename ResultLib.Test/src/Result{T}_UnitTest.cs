@@ -438,9 +438,21 @@ public class Result_T_Tests {
     }
 
     [Test]
-    public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error_And_Cast_Implicitly() {
+    public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error_And_Same_Type() {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
-        Result newResult = r.ForwardError(); // to Result
+        Result<int> newResult = r.ForwardError(); // to Result<int>
+        Assert.That(newResult.IsError(out string message), Is.True);
+        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+
+        Assert.That(newResult.IsError(out ResultException exception), Is.True);
+        Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
+        Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
+    }
+
+    [Test]
+    public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error_And_Same_Type_But_Boxed() {
+        Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
+        Result newResult = r.ForwardError().ToResult(); // to Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
 
@@ -458,6 +470,37 @@ public class Result_T_Tests {
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
+        Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
+    }
+
+    // box
+    [Test]
+    public void Test_Boxing_Ok() {
+        Result<string> r = Result.Ok("ok");
+        Result newResult = r.ToResult(); // boxing
+
+        Assert.That(newResult.IsOk(), Is.True);
+        Assert.That(newResult.Unwrap(), Is.EqualTo("ok"));
+    }
+
+    [Test]
+    public void Test_Boxing_Error_String() {
+        Result<string> r = Result.Error("error!");
+        Result newResult = r.ToResult(); // boxing
+
+        Assert.That(newResult.IsError(out string message), Is.True);
+        Assert.That(message, Is.EqualTo("error!"));
+    }
+
+    [Test]
+    public void Test_Boxing_Error_Exception() {
+        Result<string> r = Result.Error(new InvalidOperationException("error happened!"));
+        Result newResult = r.ToResult(); // boxing
+
+        Assert.That(newResult.IsError(out string message), Is.True);
+        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(newResult.IsError(out ResultException exception), Is.True);
+        Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidOperationException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
 }
