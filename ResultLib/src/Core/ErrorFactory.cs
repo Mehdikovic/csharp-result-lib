@@ -38,12 +38,13 @@ namespace ResultLib.Core {
         internal static class Result {
             internal const string Default = "Result:: Something went wrong.";
             internal const string EmptyConstructor = "Result:: Must be instantiated with Static Methods or Factory.";
-            internal const string AttemptToCreateOk = "Result:: object value could not be null";
+            internal const string AttemptToCreateOk = "Result:: object value could not be null when called FromRequired";
         }
     }
 
     public class ResultException : Exception {
         public ResultException(string message) : base(message) { }
+        public ResultException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     public class ResultDefaultConstructorException : ResultException {
