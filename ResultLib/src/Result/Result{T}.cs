@@ -34,7 +34,7 @@ namespace ResultLib {
         private Result(ResultState state, string error, T value) : this(state, error, null, value) { }
         private Result(ResultState state, Exception innerException, T value) : this(state, null, innerException, value) { }
 
-        
+
         static public Result<T> Ok() =>
             new Result<T>(ResultState.Ok, value: default);
 
@@ -231,7 +231,7 @@ namespace ResultLib {
         static public implicit operator Result<T>(Result result) {
             if (result.IsError(out string error)) {
                 return result.HasInnerException(out var innerException) ? Error(error, innerException) : Error(error);
-            } 
+            }
 
             if (result.IsOk(out object obj)) {
                 if (obj is null) return Ok();

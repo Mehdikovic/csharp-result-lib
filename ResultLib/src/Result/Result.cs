@@ -25,7 +25,7 @@ namespace ResultLib {
         private Result(ResultState state, string error, object value) : this(state, error, null, value) { }
         private Result(ResultState state, Exception innerException, object value) : this(state, null, innerException, value) { }
 
-        
+
         static public Result Ok() =>
             new Result(ResultState.Ok, value: null);
 
@@ -80,7 +80,7 @@ namespace ResultLib {
             exception = null;
             return false;
         }
-        
+
         internal bool HasInnerException(out Exception innerException) {
             innerException = _innerException;
             return innerException != null;
