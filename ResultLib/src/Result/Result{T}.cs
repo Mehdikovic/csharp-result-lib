@@ -27,6 +27,7 @@ namespace ResultLib {
             _state = state;
             _error = error.IsEmpty() ? ErrorFactory.Result.Default : error;
             _value = value;
+            _innerException = null;
         }
 
         private Result(ResultState state, Exception innerException, T value) {
