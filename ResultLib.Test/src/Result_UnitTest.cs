@@ -51,7 +51,7 @@ public class Tests {
         Assert.Throws<ResultUnwrapErrorException>(() => result.UnwrapErr());
         Assert.DoesNotThrow(() => result.ThrowIfError());
     }
-    
+
     [Test]
     public void Test_Error_Without_Message_Should_Be_Error() {
         var result = Result.Error();
@@ -106,20 +106,20 @@ public class Tests {
         var result = Result.Error();
         Assert.That(result.Unwrap(() => "FallbackValue"), Is.EqualTo("FallbackValue"));
     }
-    
+
     [Test]
     public void Test_Unwrap_With_Func_Should_Throw_Exception_If_Func_Is_Null_And_Error() {
         var result = Result.Error();
         Assert.Throws<ArgumentNullException>(() => result.Unwrap(func: null));
     }
-    
+
     [Test]
     public void Test_Unwrap_With_Null_Func_Should_Not_Throw_Exception_If_Is_Ok() {
         var result = Result.Ok();
         Assert.DoesNotThrow(() => result.Unwrap(func: null));
         Assert.That(result.Unwrap(func: null), Is.EqualTo(null));
     }
-    
+
     [Test]
     public void Test_Unwrap_With_Null_Func_Should_Throws_Exception_When_Error() {
         var result = Result.Error();
@@ -132,6 +132,28 @@ public class Tests {
         var exception = result.UnwrapErr();
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.Message, Is.EqualTo("Critical failure"));
+    }
+
+    [Test]
+    public void Test_UnwrapErr_Should_Return_InnerException_When_Error_When_Exception_Is_Passed() {
+        var result = Result.Error(new InvalidOperationException("Critical failure"));
+        var exception = result.UnwrapErr();
+        Assert.That(exception, Is.Not.Null);
+        Assert.That(exception.Message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(exception.InnerException, Is.Not.Null);
+        Assert.That(exception.InnerException.Message, Is.EqualTo("Critical failure"));
+    }
+
+    [Test]
+    public void Test_ThrowIf_Should_Throw_Exception_When_Error() {
+        var result = Result.Error(new InvalidOperationException("Critical failure"));
+        Assert.Throws<ResultException>(() => result.ThrowIfError());
+    }
+
+    [Test]
+    public void Test_ThrowIf_Should_Not_Throw_Exception_When_Ok() {
+        var result = Result.Ok();
+        Assert.DoesNotThrow(() => result.ThrowIfError());
     }
 
     [Test]
@@ -153,33 +175,33 @@ public class Tests {
         Assert.That(result.Some(out object value), Is.False);
         Assert.That(value, Is.Null);
     }
-    
+
     [Test]
     public void Test_Some_Should_Not_Return_Default_Value_When_Value_Is_Not_Null_And_Ok() {
         var result = Result.Ok("Default Value");
         Assert.That(result.Some("Object"), Is.EqualTo("Default Value"));
         Assert.That(result.Some(() => "Func Object"), Is.EqualTo("Default Value"));
     }
-    
+
     [Test]
     public void Test_Some_Should_Return_Default_Value_When_Value_Is_Null_And_Ok() {
         var result = Result.Ok(null);
         Assert.That(result.Some("Object"), Is.EqualTo("Object"));
         Assert.That(result.Some(() => "Func Object"), Is.EqualTo("Func Object"));
     }
-    
+
     [Test]
     public void Test_Some_Should_Return_Default_Value_When_Not_OK() {
         var result = Result.Error();
         Assert.That(result.Some("ValidValue"), Is.EqualTo("ValidValue"));
     }
-    
+
     [Test]
     public void Test_Some_Should_Return_Default_Value_From_func_When_Not_OK() {
         var result = Result.Error();
         Assert.That(result.Some(() => "ValidValue"), Is.EqualTo("ValidValue"));
     }
-    
+
     [Test]
     public void Test_Some_Should_Not_Throw_Exception_When_Default_Value_Is_Called_With_Null_And_Ok() {
         var result = Result.Ok("ValidValue");
@@ -187,7 +209,7 @@ public class Tests {
         Assert.DoesNotThrow(() => result.Some(func: null));
         Assert.DoesNotThrow(() => result.Some(() => null));
     }
-    
+
     [Test]
     public void Test_Some_Should_Throw_Exception_When_Default_Value_Is_Called_With_Null_And_Error() {
         var result = Result.Error("ErrorMessage");
@@ -195,19 +217,33 @@ public class Tests {
         Assert.Throws<ArgumentNullException>(() => result.Some(func: null));
         Assert.Throws<ResultInvalidSomeOperationException>(() => result.Some(() => null));
     }
-    
+
     [Test]
     public void Test_Generic_Some_Should_Return_False_When_Value_Is_Not_Correctly_Typed() {
         var result = Result.Ok("ValidValue");
         Assert.That(result.Some(out int value), Is.False);
         Assert.That(value, Is.EqualTo(default(int)));
     }
-    
+
     [Test]
     public void Test_Generic_Some_Should_Return_Default_Value_When_Value_Is_Not_Correctly_Typed() {
         var result = Result.Ok("ValidValue");
         Assert.That(result.Some(5), Is.EqualTo(5));
         Assert.That(result.Some(() => 6), Is.EqualTo(6));
+    }
+    
+    [Test]
+    public void Test_FromRequired_Should_Avoid_Result_Ok_When_Value_Is_NUll() {
+        var result = Result.FromRequired(null);
+        Assert.That(result.IsError(), Is.True);
+        Assert.That(result.IsOk(), Is.False);
+    }
+    
+    [Test]
+    public void Test_FromRequired_Should_return_Result_Ok_When_Value_Is_Not_NUll() {
+        var result = Result.FromRequired("something");
+        Assert.That(result.IsOk(), Is.True);
+        Assert.That(result.IsError(), Is.False);
     }
 
     [Test]

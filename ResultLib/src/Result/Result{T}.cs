@@ -21,11 +21,19 @@ namespace ResultLib {
         private readonly ResultState _state;
         private readonly string _error;
         private readonly T _value;
+        private readonly Exception _innerException;
 
         private Result(ResultState state, string error, T value) {
             _state = state;
-            _error = error;
+            _error = error.IsEmpty() ? ErrorFactory.Result.Default : error;
             _value = value;
+        }
+
+        private Result(ResultState state, Exception innerException, T value) {
+            _state = state;
+            _error = ErrorFactory.Result.Default;
+            _value = value;
+            _innerException = innerException;
         }
 
         static public Result<T> Ok() =>
@@ -35,10 +43,13 @@ namespace ResultLib {
             new Result<T>(ResultState.Ok, error: null, value: value);
 
         static public Result<T> Error() =>
-            new Result<T>(ResultState.Error, error: ErrorFactory.Result.Default, value: default);
+            new Result<T>(ResultState.Error, error: null, value: default);
 
         static public Result<T> Error(string error) =>
-            new Result<T>(ResultState.Error, error: error ?? string.Empty, value: default);
+            new Result<T>(ResultState.Error, error: error, value: default);
+
+        static public Result<T> Error(Exception exception) =>
+            new Result<T>(ResultState.Error, innerException: exception, value: default);
 
         static public Result<T> FromRequired(T value) =>
             value == null ? Error(ErrorFactory.Result.AttemptToCreateOk) : Ok(value);
@@ -94,14 +105,13 @@ namespace ResultLib {
         public ResultException UnwrapErr() {
             if (!IsError()) throw new ResultUnwrapErrorException();
             if (_error == null) throw new ResultDefaultConstructorException();
-            return new ResultException(_error);
+            return new ResultException(_error, _innerException);
         }
 
         public void ThrowIfError() {
             if (!IsError()) return;
-            if (_error.IsEmpty())
-                throw new ResultDefaultConstructorException();
-            throw new ResultException(_error);
+            if (_error == null) throw new ResultDefaultConstructorException();
+            throw new ResultException(_error, _innerException);
         }
 
         public TRet Match<TRet>(Func<T, TRet> onOk, Func<ResultException, TRet> onError) {
