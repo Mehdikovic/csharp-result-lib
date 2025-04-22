@@ -231,14 +231,14 @@ public class Result_Tests {
         Assert.That(result.Some(5), Is.EqualTo(5));
         Assert.That(result.Some(() => 6), Is.EqualTo(6));
     }
-    
+
     [Test]
     public void Test_FromRequired_Should_Avoid_Result_Ok_When_Value_Is_NUll() {
         var result = Result.FromRequired(null);
         Assert.That(result.IsError(), Is.True);
         Assert.That(result.IsOk(), Is.False);
     }
-    
+
     [Test]
     public void Test_FromRequired_Should_return_Result_Ok_When_Value_Is_Not_NUll() {
         var result = Result.FromRequired("something");

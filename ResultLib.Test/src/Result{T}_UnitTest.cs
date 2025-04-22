@@ -385,14 +385,14 @@ public class Result_T_Tests {
         Assert.That(r2.IsError(), Is.True);
         Assert.That(r3.IsError(), Is.True);
     }
-    
+
     // error forwarding
     [Test]
     public void Test_ForwardError_Throws_Exception_If_Ok() {
         Result r = Result.Ok();
         Assert.Throws<ResultInvalidForwardException>(() => r.ForwardError());
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Work_Correctly_If_Error() {
         Result r = Result.Error("error happened!");
@@ -400,62 +400,62 @@ public class Result_T_Tests {
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("error happened!"));
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error() {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result newResult = r.ForwardError(); // to Result
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
-        
+
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Implicitly_Cast_And_Propagate_InnerException_Correctly_If_Error() {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result<int> newResult = r.ForwardError(); // to Result then Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
-        
+
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Explicitly_Cast_And_Propagate_InnerException_Correctly_If_Error() {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result<int> newResult = r.ForwardError<int>(); // to Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
-        
+
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error_And_Cast_Implicitly() {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
         Result newResult = r.ForwardError(); // to Result
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
-        
+
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
-    
+
     [Test]
     public void Test_ForwardError_Should_Propagate_InnerException_Correctly_If_Error_And_Cast_Implicitly_To_Different_Type() {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
         Result<string> newResult = r.ForwardError<int, string>(); // to Result<string>
         Assert.That(newResult.IsError(out string message), Is.True);
         Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
-        
+
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
