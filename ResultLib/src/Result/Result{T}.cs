@@ -106,13 +106,13 @@ namespace ResultLib {
         public bool Some(out T value) => IsOk(out value) && value != null;
 
         public T Some(T defaultValue) {
-            if (IsOk(out var value)) return value;
+            if (IsOk(out var value) && value != null) return value;
             ThrowIfNull(defaultValue);
             return defaultValue;
         }
 
         public T Some(Func<T> func) {
-            if (IsOk(out var value)) return value;
+            if (IsOk(out var value) && value != null) return value;
             ThrowIfNull(func);
             var newValueFromSomeFunc = func.Invoke();
             if (newValueFromSomeFunc == null) throw new ResultInvalidSomeOperationException();
@@ -229,11 +229,13 @@ namespace ResultLib {
             => left.CompareTo(right) <= 0;
 
         static public implicit operator Result<T>(Result result) {
-            if (result.IsError(out string error)) return Result<T>.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Error(error, innerException) : Error(error);
+            } 
 
             if (result.IsOk(out object obj)) {
-                if (obj is null) return Result<T>.Ok();
-                if (obj is T value) return Result<T>.Ok(value);
+                if (obj is null) return Ok();
+                if (obj is T value) return Ok(value);
             }
 
             throw new ResultInvalidImplicitCastException(result.Unwrap().GetType(), typeof(T));
