@@ -2,7 +2,7 @@
 
 namespace ResultLib.Test;
 
-public class Tests {
+public class Result_Tests {
     [SetUp]
     public void Setup()
     {
