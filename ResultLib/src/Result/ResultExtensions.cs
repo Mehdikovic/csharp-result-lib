@@ -2,14 +2,14 @@
 // ReSharper disable InvertIf
 // ReSharper disable ConvertIfStatementToSwitchStatement
 
-using System;
-
 using ResultLib.Core;
 
 namespace ResultLib {
     static public class ResultExtensions {
         static public Result<T> ToResult<T>(this Result result) {
-            if (result.IsError(out string error)) return Result<T>.Error(error);
+            if (result.IsError(out string error)) {
+                return result.HasInnerException(out var innerException) ? Result<T>.Error(error, innerException) : Result<T>.Error(error);
+            }
 
             if (result.IsOk(out object obj)) {
                 if (obj is null) return Result<T>.Ok();
