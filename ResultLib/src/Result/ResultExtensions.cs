@@ -26,16 +26,16 @@ namespace ResultLib {
             throw new ResultInvalidForwardException();
         }
 
-        static public Result<TTo> ForwardError<TTo>(this Result result) {
+        static public Result<T> ForwardError<T>(this Result result) {
             if (result.IsError(out string error)) {
-                return result.HasInnerException(out var innerException) ? Result<TTo>.Error(error, innerException) : Result<TTo>.Error(error);
+                return result.HasInnerException(out var innerException) ? Result<T>.Error(error, innerException) : Result<T>.Error(error);
             }
             throw new ResultInvalidForwardException();
         }
 
-        static public Result ForwardError<TFrom>(this Result<TFrom> result) {
+        static public Result<T> ForwardError<T>(this Result<T> result) {
             if (result.IsError(out string error)) {
-                return result.HasInnerException(out var innerException) ? Result.Error(error, innerException) : Result.Error(error);
+                return result.HasInnerException(out var innerException) ? Result<T>.Error(error, innerException) : Result<T>.Error(error);
             }
             throw new ResultInvalidForwardException();
         }
