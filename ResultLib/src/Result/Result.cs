@@ -112,6 +112,11 @@ namespace ResultLib {
 
         public bool Some<T>(out T value) => IsOk(out value);
 
+        public T Some<T>() {
+            if (IsOk(out T value)) return value;
+            throw new ResultInvalidSomeOperationException();
+        }
+        
         public T Some<T>(T defaultValue) {
             if (IsOk(out T value)) return value;
             ThrowIfNull(defaultValue);

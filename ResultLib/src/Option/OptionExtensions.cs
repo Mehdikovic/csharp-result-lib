@@ -8,61 +8,60 @@ namespace ResultLib {
     static public class OptionExtensions {
         static public Option<T> ToOption<T>(this Option option) {
             if (option.GetResult().IsOk(out object obj)) {
-                if (obj is null) return Option<T>.Failed(ErrorFactory.Option.InvalidIsOkCastOperation());
-                if (obj is not T) return Option<T>.Failed(ErrorFactory.Option.InvalidExplicitUnboxingCast(obj.GetType(), typeof(T)));
+                if (obj is null) throw new OptionInvalidNullCastException();
+                if (obj is not T) throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(T));
             }
 
             if (option.IsSuccess(out var result)) {
-                return result.Some(out T value)
-                    ? Option<T>.Success(value)
-                    : Option<T>.Success();
+                return result.IsError() ? Option<T>.Success() : Option<T>.Success(result.Some<T>());
             }
 
             if (option.IsFailed(out result)) {
-                return result.Some(out T value)
-                    ? Option<T>.Failed(option.GetErrorInternal(), value)
-                    : Option<T>.Failed(option.GetErrorInternal());
+                return result.IsError() ? Option<T>.Failed(option.GetErrorInternal()) : Option<T>.Failed(option.GetErrorInternal(), result.Some<T>());
             }
 
             if (option.IsCanceled(out result)) {
-                return result.Some(out T value)
-                    ? Option<T>.Canceled(value)
-                    : Option<T>.Canceled();
+                return result.IsError() ? Option<T>.Canceled() : Option<T>.Canceled(result.Some<T>());
             }
 
-            // we won't reach here
-            return default;
+            throw new OptionInvalidStateException();
         }
 
         static public Option<TSuccess, TFailed, TCanceled> ToOption<TSuccess, TFailed, TCanceled>(this Option option) {
             if (option.GetResult().IsOk(out object obj)) {
-                if (obj is null) return Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidIsOkCastOperation());
-                if (obj is not (TSuccess and TFailed and TCanceled)) return Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidIsOkCastOperation());
+                if (obj is null) throw new OptionInvalidNullCastException();
+                if (obj is not (TSuccess and TFailed and TCanceled)) throw new OptionInvalidExplicitCastException(obj.GetType(), GetTypeLocal(option));
             }
 
             if (option.IsSuccess(out var result)) {
                 if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Success();
                 return result.Some<TSuccess>(out var some)
                     ? Option<TSuccess, TFailed, TCanceled>.Success(some)
-                    : Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidExplicitUnboxingCast(obj.GetType(), typeof(TSuccess)));
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TSuccess));
             }
 
             if (option.IsFailed(out result)) {
                 if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Failed();
                 return result.Some<TFailed>(out var some)
                     ? Option<TSuccess, TFailed, TCanceled>.Failed(option.GetErrorInternal(), some)
-                    : Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidExplicitUnboxingCast(obj.GetType(), typeof(TFailed)));
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TFailed));
             }
 
             if (option.IsCanceled(out result)) {
                 if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Canceled();
                 return result.Some<TCanceled>(out var some)
                     ? Option<TSuccess, TFailed, TCanceled>.Canceled(some)
-                    : Option<TSuccess, TFailed, TCanceled>.Failed(ErrorFactory.Option.InvalidExplicitUnboxingCast(obj.GetType(), typeof(TCanceled)));
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TCanceled));
             }
 
-            // we won't reach here
-            return default;
+            throw new OptionInvalidStateException();
+
+            System.Type GetTypeLocal(Option opt) {
+                if (opt.IsSuccess()) return typeof(TSuccess);
+                if (opt.IsFailed()) return typeof(TFailed);
+                if (opt.IsCanceled()) return typeof(TCanceled);
+                throw new OptionInvalidStateException();
+            }
         }
     }
 }
