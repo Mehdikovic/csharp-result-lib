@@ -217,6 +217,18 @@ public class Result_T_Tests {
         Assert.Throws<ArgumentNullException>(() => result.Some(func: null));
         Assert.Throws<ResultInvalidSomeOperationException>(() => result.Some(() => null));
     }
+    
+    [Test]
+    public void Test_Generic_Some_Should_Return_Value() {
+        var result = Result<string>.Ok("ValidValue");
+        Assert.That(result.Some(), Is.EqualTo("ValidValue"));
+    }
+    
+    [Test]
+    public void Test_Generic_Some_Should_Throw_Exception_If_Mistyped() {
+        var result = Result<string>.Ok(null);
+        Assert.Throws<ResultInvalidSomeOperationException>(() => result.Some());
+    }
 
     [Test]
     public void Test_FromRequired_Should_Avoid_Result_Ok_When_Value_Is_NUll() {
