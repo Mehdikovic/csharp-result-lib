@@ -200,8 +200,8 @@ namespace ResultLib {
 
         public override string ToString() {
             return _state switch {
-                ResultState.Ok => "Ok = {0}".Format(Unwrap()),
-                ResultState.Error => "Error = {0}".Format(UnwrapErr()),
+                ResultState.Ok => "Ok = {0}".Format(_value ?? "null"),
+                ResultState.Error => "Error = {0}".Format(_error),
                 _ => "Error:: Unrecognized State"
             };
         }
