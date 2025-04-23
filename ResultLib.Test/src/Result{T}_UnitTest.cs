@@ -503,4 +503,16 @@ public class Result_T_Tests {
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidOperationException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
     }
+    
+    // Other
+    [Test]
+    public void Test_ToString_Should_Work_Correctly() {
+        var result1 = Result<int>.Ok(100);
+        var result2 = Result<int>.Error();
+        var result3 = Result<string>.Ok();
+
+        Assert.That(result1.ToString(), Is.EqualTo("Ok = 100"));
+        Assert.That(result2.ToString(), Is.EqualTo("Error = Result:: Something went wrong."));
+        Assert.That(result3.ToString(), Is.EqualTo("Ok = null"));
+    }
 }

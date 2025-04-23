@@ -296,4 +296,16 @@ public class Result_Tests {
         Assert.That(result3 < result1);
         Assert.That(result1 > result3);
     }
+
+    // Other
+    [Test]
+    public void Test_ToString_Should_Work_Correctly() {
+        var result1 = Result.Ok(100);
+        var result2 = Result.Error();
+        var result3 = Result.Ok();
+
+        Assert.That(result1.ToString(), Is.EqualTo("Ok = 100"));
+        Assert.That(result2.ToString(), Is.EqualTo("Error = Result:: Something went wrong."));
+        Assert.That(result3.ToString(), Is.EqualTo("Ok = null"));
+    }
 }
