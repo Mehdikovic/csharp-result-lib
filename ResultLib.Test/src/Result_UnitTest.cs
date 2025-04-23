@@ -231,6 +231,21 @@ public class Result_Tests {
         Assert.That(result.Some(5), Is.EqualTo(5));
         Assert.That(result.Some(() => 6), Is.EqualTo(6));
     }
+    
+    [Test]
+    public void Test_Generic_Some_Should_Return_Value() {
+        var result = Result.Ok("ValidValue");
+        Assert.That(result.Some<string>(), Is.EqualTo("ValidValue"));
+    }
+    
+    [Test]
+    public void Test_Generic_Some_Should_Throw_Exception_If_Null_Or_Mistyped() {
+        var result = Result.Ok(null);
+        Assert.Throws<ResultInvalidSomeOperationException>(() => result.Some<string>());
+        
+        var result2 = Result.Ok(123);
+        Assert.Throws<ResultInvalidSomeOperationException>(() => result2.Some<string>());
+    }
 
     [Test]
     public void Test_FromRequired_Should_Avoid_Result_Ok_When_Value_Is_NUll() {
