@@ -105,6 +105,11 @@ namespace ResultLib {
 
         public bool Some(out T value) => IsOk(out value) && value != null;
 
+        public T Some() {
+            if (IsOk(out var value) && value != null) return value;
+            throw new ResultInvalidSomeOperationException();
+        }
+
         public T Some(T defaultValue) {
             if (IsOk(out var value) && value != null) return value;
             ThrowIfNull(defaultValue);
