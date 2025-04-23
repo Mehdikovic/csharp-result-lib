@@ -6,35 +6,6 @@ using System;
 
 namespace ResultLib.Core {
     internal static class ErrorFactory {
-        internal static class Option {
-            static internal readonly Func<Exception> Default =
-                () => new Exception("Option:: Something went wrong.");
-
-            static internal readonly Func<string, Exception> Create =
-                (error) => new Exception($"Option:: {error ?? string.Empty}");
-
-            static internal readonly Func<InvalidOperationException> InvalidStateWhenGettingError =
-                () => new InvalidOperationException("Option:: state is invalid. Must be [Success] | [Failed] | [Canceled]");
-
-            static internal readonly Func<OperationCanceledException> Cancel =
-                () => new OperationCanceledException("Option:: Operation cancelled.");
-
-            static internal readonly Func<NullReferenceException> NullUnwrapErr =
-                () => new NullReferenceException("Option:: does not have an Exception when calling UnwrapErr in state [Success].");
-
-            static internal readonly Func<InvalidOperationException> InvalidOperationMatch =
-                () => new InvalidOperationException("Option:: state is not recognized. Should be [Success], [Failed] or [Canceled]");
-
-            static internal readonly Func<NullReferenceException> InvalidIsOkCastOperation =
-                () => new NullReferenceException("Option:: Option cannot hold a null value when IsOk is true.");
-
-            static internal readonly Func<Type, Type, InvalidCastException> InvalidImplicitUnboxingCast =
-                (from, to) => new InvalidCastException($"Option:: Internal Error:: value could not be cast from {from.Name} to {to.Name}, possibility of losing data in implicit conversion.");
-
-            static internal readonly Func<Type, Type, InvalidCastException> InvalidExplicitUnboxingCast =
-                (from, to) => new InvalidCastException($"Option:: Internal Error:: value could not be cast from {from.Name} to {to.Name}, possibility of losing data in explicit conversion.");
-        }
-
         internal static class Result {
             internal const string Default = "Result:: Something went wrong.";
             internal const string EmptyConstructor = "Result:: Must be instantiated with Static Methods or Factory.";
@@ -60,7 +31,7 @@ namespace ResultLib.Core {
     };
 
     public class ResultInvalidSomeOperationException : ResultException {
-        public ResultInvalidSomeOperationException() : base("Result:: Some Func delegate must return a value which is not null") { }
+        public ResultInvalidSomeOperationException() : base("Result:: Some must return a value which is not null and strongly typed") { }
     };
 
     public class ResultInvalidMatchException : ResultException {
@@ -85,5 +56,35 @@ namespace ResultLib.Core {
         public ResultInvalidExplicitCastException(Type from, Type to) : base(
             "Result:: Internal Error:: Result value could not be cast from {0} to {1}, possibility of losing data in explicit conversion.".Format(from.Name, to.Name)
         ) { }
+    }
+    
+    
+    // Options
+    
+    public class OptionException : Exception {
+        public OptionException() : base("Result:: Something went wrong.") { }
+        public OptionException(string message) : base(message.IsEmpty() ? "Result:: Something went wrong." : $"Option:: {message}") { }
+    }
+
+    public class OptionInvalidNullCastException : Exception {
+        public OptionInvalidNullCastException() : base("Option:: Option cannot hold a null value when IsOk is true.") { }
+    }
+
+    public class OptionInvalidExplicitCastException : Exception {
+        public OptionInvalidExplicitCastException(Type from, Type to) : base(
+            $"Option:: Internal Error:: value could not be cast from {from.Name} to {to.Name}, possibility of losing data in explicit conversion."
+        ) { }
+    }
+
+    public class OptionInvalidStateException : Exception {
+        public OptionInvalidStateException() : base("Option:: state is not recognized. Should be [Success], [Failed] or [Canceled]") { }
+    }
+    
+    public class OptionInvalidOperationException : Exception {
+        public OptionInvalidOperationException() : base("Option:: state [Success] cannot have an Exception when calling GetError.") { }
+    }
+
+    public class OptionOperationCanceledException : Exception {
+        public OptionOperationCanceledException() : base("Option:: Operation cancelled.") { }
     }
 }
