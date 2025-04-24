@@ -30,7 +30,6 @@ namespace ResultLib {
         static public Option<TSuccess, TFailed, TCanceled> ToOption<TSuccess, TFailed, TCanceled>(this Option option) {
             if (option.GetResult().IsOk(out object obj)) {
                 if (obj is null) throw new OptionInvalidNullCastException();
-                if (obj is not (TSuccess and TFailed and TCanceled)) throw new OptionInvalidExplicitCastException(obj.GetType(), GetTypeLocal(option));
             }
 
             if (option.IsSuccess(out var result)) {
@@ -55,13 +54,6 @@ namespace ResultLib {
             }
 
             throw new OptionInvalidStateException();
-
-            System.Type GetTypeLocal(Option opt) {
-                if (opt.IsSuccess()) return typeof(TSuccess);
-                if (opt.IsFailed()) return typeof(TFailed);
-                if (opt.IsCanceled()) return typeof(TCanceled);
-                throw new OptionInvalidStateException();
-            }
         }
     }
 }

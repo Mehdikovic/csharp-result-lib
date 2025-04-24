@@ -19,4 +19,13 @@ namespace ResultLib {
         static public Result<T> Error<T>() => Result<T>.Error();
         static public Result<T> Error<T>(string error) => Result<T>.Error(error);
     }
+
+    namespace ResultFactoryExtensions {
+        static public class Extensions {
+            static public Result<T> FromRequired<T>(this T value) => Result<T>.FromRequired(value);
+            static public Result<T> Ok<T>(this T value) => Result<T>.Ok(value);
+            static public Result<T> Error<T>(this T _) => Result<T>.Error();
+            static public Result<T> Error<T>(this T _, string error) => Result<T>.Error(error);
+        }
+    }
 }
