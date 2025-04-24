@@ -90,7 +90,7 @@ namespace ResultLib {
             if (_error != null) return _error;
 
             return _state switch {
-                OptionState.Success => throw new OptionInvalidOperationException(),
+                OptionState.Success => throw new OptionInvalidGetErrorException(),
                 OptionState.Failed => new OptionException(),
                 OptionState.Canceled => new OptionOperationCanceledException(),
                 _ => throw new OptionInvalidStateException(),
@@ -745,8 +745,8 @@ namespace ResultLib {
             return _state switch {
                 OptionState.Success => "Success; Value: {{{0}}}".Format(GetResult()),
                 OptionState.Failed => "Failed; Error = {0}; Value: {{{1}}}".Format(GetError().Message, GetResult()),
-                OptionState.Canceled => "Canceled; Error = {0}; Value: {{{1}}}".Format(GetError().Message, GetResult()),
-                _ => "Error:: Unrecognized State"
+                OptionState.Canceled => "Canceled; Value: {{{1}}}".Format(GetResult()),
+                _ => throw new OptionInvalidStateException(),
             };
         }
 
