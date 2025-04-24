@@ -756,7 +756,7 @@ namespace ResultLib {
             return _state switch {
                 OptionState.Success => "Success; Value: {{{0}}}".Format(GetResult()),
                 OptionState.Failed => "Failed; Error = {0}; Value: {{{1}}}".Format(GetError().Message, GetResult()),
-                OptionState.Canceled => "Canceled; Value: {{{1}}}".Format(GetResult()),
+                OptionState.Canceled => "Canceled; Value: {{{0}}}".Format(GetResult()),
                 _ => throw new OptionInvalidStateException(),
             };
         }

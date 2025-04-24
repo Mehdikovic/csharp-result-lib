@@ -823,7 +823,7 @@ namespace ResultLib {
             return _state switch {
                 OptionState.Success => "Success; Value: {{{0}}}".Format(GetResultSuccess()),
                 OptionState.Failed => "Failed; Error = {0}; Value: {{{1}}}".Format(GetError().Message, GetResultFailed()),
-                OptionState.Canceled => "Canceled; Value: {{{1}}}".Format(GetResultCanceled()),
+                OptionState.Canceled => "Canceled; Value: {{{0}}}".Format(GetResultCanceled()),
                 _ => throw new OptionInvalidStateException(),
             };
         }
