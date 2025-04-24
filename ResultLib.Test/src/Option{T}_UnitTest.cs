@@ -137,5 +137,46 @@ namespace ResultLib.Tests {
                 && option6 > option7
             );
         }
+        
+        // box
+        [Test]
+        public void Test_Boxing_Ok() {
+            Option<string> r = Option<string>.Success("ok");
+            Option option = r.ToOption(); // boxing
+
+            Assert.That(option.IsSuccess(), Is.True);
+            Assert.That(option.GetResult().Unwrap(), Is.EqualTo("ok"));
+        }
+
+        [Test]
+        public void Test_Boxing_Error_String() {
+            Option<string> r = Option<string>.Failed("error occurred!");
+            Option option = r.ToOption(); // boxing
+
+            Assert.That(option.IsFailed(), Is.True);
+            Assert.That(option.GetError().Message, Is.EqualTo("error occurred!"));
+        }
+
+        [Test]
+        public void Test_Boxing_Error_Exception() {
+            Option<string> r = Option<string>.Failed(new InvalidOperationException("error happened!"));
+            Option option = r.ToOption(); // boxing
+
+            Assert.That(option.IsFailed(), Is.True);
+            Assert.That(option.GetError().Message, Is.EqualTo("error happened!"));
+            Assert.That(option.GetError().GetType(), Is.EqualTo(typeof(InvalidOperationException)));
+        }
+    
+        // Other
+        [Test]
+        public void Test_ToString_Should_Work_Correctly() {
+            var option1 =Option<int>.Success(100);
+            var option2 = Option<string>.Failed();
+            var option3 = Option<string>.Canceled();
+
+            Assert.That(option1.ToString(), Is.EqualTo("Success; Value: {Ok = 100}"));
+            Assert.That(option2.ToString(), Is.EqualTo("Failed; Error = something went wrong in Option.; Value: {Error = something went wrong in Result.}"));
+            Assert.That(option3.ToString(), Is.EqualTo("Canceled; Value: {Error = something went wrong in Result.}"));
+        }
     }
 }

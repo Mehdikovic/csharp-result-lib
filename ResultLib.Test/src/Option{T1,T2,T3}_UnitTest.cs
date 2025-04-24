@@ -137,5 +137,17 @@ namespace ResultLib.Tests {
                 && option6 > option7
             );
         }
+        
+        // other
+        [Test]
+        public void Test_ToString_Should_Work_Correctly() {
+            var option1 =Option<string, string, string>.Success("100");
+            var option2 = Option<string, string, string>.Failed();
+            var option3 = Option<string, string, string>.Canceled();
+
+            Assert.That(option1.ToString(), Is.EqualTo("Success; Value: {Ok = 100}"));
+            Assert.That(option2.ToString(), Is.EqualTo("Failed; Error = something went wrong in Option.; Value: {Error = something went wrong in Result.}"));
+            Assert.That(option3.ToString(), Is.EqualTo("Canceled; Value: {Error = something went wrong in Result.}"));
+        }
     }
 }
