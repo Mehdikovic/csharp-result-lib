@@ -34,8 +34,8 @@ namespace ResultLib.Core {
         public ResultInvalidSomeOperationException() : base("Result:: Some must return a value which is not null and strongly typed") { }
     };
 
-    public class ResultInvalidMatchException : ResultException {
-        public ResultInvalidMatchException() : base("Result:: state is not recognized. Should be [Ok] or [Error]") { }
+    public class ResultInvalidStateException : ResultException {
+        public ResultInvalidStateException() : base("Result:: state is not recognized. Should be [Ok] or [Error]") { }
     };
 
     public class ResultInvalidForwardException : ResultException {
@@ -62,8 +62,8 @@ namespace ResultLib.Core {
     // Options
     
     public class OptionException : Exception {
-        public OptionException() : base("Result:: Something went wrong.") { }
-        public OptionException(string message) : base(message.IsEmpty() ? "Result:: Something went wrong." : $"Option:: {message}") { }
+        public OptionException() : base("Option:: Something went wrong.") { }
+        public OptionException(string message) : base(message.IsEmpty() ? "Option:: Something went wrong." : $"Option:: {message}") { }
     }
 
     public class OptionInvalidNullCastException : Exception {
@@ -80,8 +80,8 @@ namespace ResultLib.Core {
         public OptionInvalidStateException() : base("Option:: state is not recognized. Should be [Success], [Failed] or [Canceled]") { }
     }
     
-    public class OptionInvalidOperationException : Exception {
-        public OptionInvalidOperationException() : base("Option:: state [Success] cannot have an Exception when calling GetError.") { }
+    public class OptionInvalidGetErrorException : Exception {
+        public OptionInvalidGetErrorException() : base("Option:: state [Success] cannot have an Exception when calling GetError.") { }
     }
 
     public class OptionOperationCanceledException : Exception {

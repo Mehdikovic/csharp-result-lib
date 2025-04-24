@@ -150,7 +150,7 @@ namespace ResultLib {
             return _state switch {
                 ResultState.Ok => onOk.Invoke(Unwrap()),
                 ResultState.Error => onError.Invoke(UnwrapErr()),
-                _ => throw new ResultInvalidMatchException()
+                _ => throw new ResultInvalidStateException()
             };
         }
 
@@ -161,7 +161,7 @@ namespace ResultLib {
             return _state switch {
                 ResultState.Ok => onOk.Invoke(),
                 ResultState.Error => onError.Invoke(),
-                _ => throw new ResultInvalidMatchException()
+                _ => throw new ResultInvalidStateException()
             };
         }
 
@@ -172,7 +172,7 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(Unwrap()); break;
                 case ResultState.Error: onError.Invoke(UnwrapErr()); break;
-                default: throw new ResultInvalidMatchException();
+                default: throw new ResultInvalidStateException();
             }
         }
 
@@ -183,7 +183,7 @@ namespace ResultLib {
             switch (_state) {
                 case ResultState.Ok: onOk.Invoke(); break;
                 case ResultState.Error: onError.Invoke(); break;
-                default: throw new ResultInvalidMatchException();
+                default: throw new ResultInvalidStateException();
             }
         }
 
@@ -207,7 +207,7 @@ namespace ResultLib {
             return _state switch {
                 ResultState.Ok => "Ok = {0}".Format(_value ?? "null"),
                 ResultState.Error => "Error = {0}".Format(_error),
-                _ => "Error:: Unrecognized State"
+                _ => throw new ResultInvalidStateException()
             };
         }
 
