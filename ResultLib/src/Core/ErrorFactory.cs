@@ -62,8 +62,8 @@ namespace ResultLib.Core {
     // Options
 
     public class OptionException : Exception {
-        public OptionException() : base("something went wrong.") { }
-        public OptionException(string message) : base(message.IsEmpty() ? "something went wrong." : message) { }
+        public OptionException() : base("something went wrong in Option.") { }
+        public OptionException(string message) : base(message.IsEmpty() ? "something went wrong in Option." : message) { }
     }
 
     public class OptionInvalidNullCastException : Exception {
