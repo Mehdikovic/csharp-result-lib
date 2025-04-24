@@ -24,7 +24,7 @@ public class Result_T_Tests {
     [Test]
     public void Test_DefaultConstructorShouldReturnEmptyConstructorError() {
         var result = new Result<string>();
-        Assert.That(result.IsError(out string errorMessage) && errorMessage == "Result:: Must be instantiated with Static Methods or Factory.");
+        Assert.That(result.IsError(out string errorMessage) && errorMessage == "Result must be instantiated with Static Methods or Factory.");
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class Result_T_Tests {
     public void Test_Error_Without_Message_Should_Be_Error() {
         var result = Result<string>.Error();
         Assert.That(result.IsError(out string message));
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
         Assert.That(result.UnwrapErr().GetType(), Is.EqualTo(typeof(ResultException)));
         Assert.DoesNotThrow(() => result.UnwrapErr());
         Assert.Throws<ResultException>(() => result.ThrowIfError());
@@ -64,9 +64,9 @@ public class Result_T_Tests {
 
     [Test]
     public void Test_Error_With_Message_Should_Be_Error() {
-        var result = Result<string>.Error("Something went wrong");
+        var result = Result<string>.Error("something went wrong in Result.");
         Assert.That(result.IsError(out string message));
-        Assert.That(message, Is.EqualTo("Something went wrong"));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
         Assert.That(result.UnwrapErr().GetType(), Is.EqualTo(typeof(ResultException)));
         Assert.DoesNotThrow(() => result.UnwrapErr());
         Assert.Throws<ResultException>(() => result.ThrowIfError());
@@ -139,7 +139,7 @@ public class Result_T_Tests {
         var result = Result<string>.Error(new InvalidOperationException("Critical failure"));
         var exception = result.UnwrapErr();
         Assert.That(exception, Is.Not.Null);
-        Assert.That(exception.Message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(exception.Message, Is.EqualTo("something went wrong in Result."));
         Assert.That(exception.InnerException, Is.Not.Null);
         Assert.That(exception.InnerException.Message, Is.EqualTo("Critical failure"));
     }
@@ -418,7 +418,7 @@ public class Result_T_Tests {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result newResult = r.ForwardError(); // to Result
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -430,7 +430,7 @@ public class Result_T_Tests {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result<int> newResult = r.ForwardError(); // to Result then Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -442,7 +442,7 @@ public class Result_T_Tests {
         Result r = Result.Error(new InvalidCastException("error happened!"));
         Result<int> newResult = r.ForwardError<int>(); // to Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -454,7 +454,7 @@ public class Result_T_Tests {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
         Result<int> newResult = r.ForwardError(); // to Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -466,7 +466,7 @@ public class Result_T_Tests {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
         Result newResult = r.ForwardError().ToResult(); // to Result<int>
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -478,7 +478,7 @@ public class Result_T_Tests {
         Result<int> r = Result<int>.Error(new InvalidCastException("error happened!"));
         Result<string> newResult = r.ForwardError<int, string>(); // to Result<string>
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
 
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidCastException)));
@@ -510,7 +510,7 @@ public class Result_T_Tests {
         Result newResult = r.ToResult(); // boxing
 
         Assert.That(newResult.IsError(out string message), Is.True);
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
         Assert.That(newResult.IsError(out ResultException exception), Is.True);
         Assert.That(exception!.InnerException!.GetType(), Is.EqualTo(typeof(InvalidOperationException)));
         Assert.That(exception!.InnerException!.Message, Is.EqualTo("error happened!"));
@@ -524,7 +524,7 @@ public class Result_T_Tests {
         var result3 = Result<string>.Ok();
 
         Assert.That(result1.ToString(), Is.EqualTo("Ok = 100"));
-        Assert.That(result2.ToString(), Is.EqualTo("Error = Result:: Something went wrong."));
+        Assert.That(result2.ToString(), Is.EqualTo("Error = something went wrong in Result."));
         Assert.That(result3.ToString(), Is.EqualTo("Ok = null"));
     }
 }

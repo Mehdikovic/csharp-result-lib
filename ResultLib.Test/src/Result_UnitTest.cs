@@ -24,7 +24,7 @@ public class Result_Tests {
     [Test]
     public void Test_DefaultConstructorShouldReturnEmptyConstructorError() {
         var result = new Result();
-        Assert.That(result.IsError(out string errorMessage) && errorMessage == "Result:: Must be instantiated with Static Methods or Factory.");
+        Assert.That(result.IsError(out string errorMessage) && errorMessage == "Result must be instantiated with Static Methods or Factory.");
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class Result_Tests {
     public void Test_Error_Without_Message_Should_Be_Error() {
         var result = Result.Error();
         Assert.That(result.IsError(out string message));
-        Assert.That(message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(message, Is.EqualTo("something went wrong in Result."));
         Assert.That(result.UnwrapErr().GetType(), Is.EqualTo(typeof(ResultException)));
         Assert.DoesNotThrow(() => result.UnwrapErr());
         Assert.Throws<ResultException>(() => result.ThrowIfError());
@@ -139,7 +139,7 @@ public class Result_Tests {
         var result = Result.Error(new InvalidOperationException("Critical failure"));
         var exception = result.UnwrapErr();
         Assert.That(exception, Is.Not.Null);
-        Assert.That(exception.Message, Is.EqualTo("Result:: Something went wrong."));
+        Assert.That(exception.Message, Is.EqualTo("something went wrong in Result."));
         Assert.That(exception.InnerException, Is.Not.Null);
         Assert.That(exception.InnerException.Message, Is.EqualTo("Critical failure"));
     }
@@ -329,7 +329,7 @@ public class Result_Tests {
         var result3 = Result.Ok();
 
         Assert.That(result1.ToString(), Is.EqualTo("Ok = 100"));
-        Assert.That(result2.ToString(), Is.EqualTo("Error = Result:: Something went wrong."));
+        Assert.That(result2.ToString(), Is.EqualTo("Error = something went wrong in Result."));
         Assert.That(result3.ToString(), Is.EqualTo("Ok = null"));
     }
 }
