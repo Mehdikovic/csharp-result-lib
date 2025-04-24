@@ -3,6 +3,7 @@
 // ReSharper disable MemberCanBePrivate.Global
 
 using System;
+using System.Collections.Generic;
 
 using ResultLib.Core;
 
@@ -214,7 +215,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(),
                 OptionState.Failed => onFailedOrCanceled.Invoke(),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -226,7 +227,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(),
                 OptionState.Failed => onFailed.Invoke(),
                 OptionState.Canceled => default,
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -238,7 +239,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(),
                 OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -250,7 +251,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(),
                 OptionState.Canceled => onCanceled.Invoke(),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -261,7 +262,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailedOrCanceled.Invoke(),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -278,7 +279,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed()),
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -290,7 +291,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -302,7 +303,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed()),
                 OptionState.Canceled => default,
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -314,7 +315,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -326,7 +327,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(GetResultFailed()),
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -337,7 +338,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -354,7 +355,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -366,7 +367,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetError()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -378,7 +379,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetError()),
                 OptionState.Canceled => default,
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -390,7 +391,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -402,7 +403,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -413,7 +414,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetError()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -430,7 +431,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled(), GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -442,7 +443,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -454,7 +455,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
                 OptionState.Canceled => default,
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -466,7 +467,7 @@ namespace ResultLib {
                 OptionState.Success => onSuccess.Invoke(GetResultSuccess()),
                 OptionState.Failed => default,
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled(), GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -478,7 +479,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailed.Invoke(GetResultFailed(), GetError()),
                 OptionState.Canceled => onCanceled.Invoke(GetResultCanceled(), GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
 
@@ -489,7 +490,7 @@ namespace ResultLib {
                 OptionState.Success => default,
                 OptionState.Failed => onFailedOrCanceled.Invoke(GetResultFailed().ToResult(), GetError()),
                 OptionState.Canceled => onFailedOrCanceled.Invoke(GetResultCanceled().ToResult(), GetError()),
-               _ => throw new OptionInvalidStateException()
+                _ => throw new OptionInvalidStateException()
             };
         }
         #endregion
@@ -839,7 +840,7 @@ namespace ResultLib {
                             ? 1
                             : other._valueFailed.IsOk()
                                 ? -1
-                                : 0,
+                                : Comparer<Exception>.Default.Compare(_error, other._error),
                 (OptionState.Failed, OptionState.Success) => -1,
                 (OptionState.Failed, OptionState.Canceled) => 1,
                 (OptionState.Canceled, OptionState.Canceled) =>
