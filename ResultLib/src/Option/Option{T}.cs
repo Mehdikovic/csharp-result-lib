@@ -3,6 +3,7 @@
 // ReSharper disable MemberCanBePrivate.Global
 
 using System;
+using System.Collections.Generic;
 
 using ResultLib.Core;
 
@@ -772,7 +773,7 @@ namespace ResultLib {
                             ? 1
                             : other._value.IsOk()
                                 ? -1
-                                : 0,
+                                : Comparer<Exception>.Default.Compare(_error, other._error),
                 (OptionState.Failed, OptionState.Success) => -1,
                 (OptionState.Failed, OptionState.Canceled) => 1,
                 (OptionState.Canceled, OptionState.Canceled) =>
