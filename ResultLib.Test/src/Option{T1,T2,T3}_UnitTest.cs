@@ -137,11 +137,138 @@ namespace ResultLib.Tests {
                 && option6 > option7
             );
         }
-        
+
+        // cast
+        [Test]
+        public void Test_Casting_Ok() {
+            Option<string, int, int> r = Option<string, int, int>.Success("ok");
+            Option option = r.ToOption(); // boxing
+
+            Option<string, int, int> newOpt = option.ToOption<string, int, int>();
+
+            Assert.That(newOpt.IsSuccess(), Is.True);
+            Assert.That(newOpt.GetResultSuccess().Unwrap(), Is.EqualTo("ok"));
+        }
+
+        [Test]
+        public void Test_Casting_Error_String() {
+            Option<string, int, int> r = Option<string, int, int>.Failed("error occurred!");
+            Option option = r.ToOption(); // boxing
+
+            Option<string, int, int> newOpt = option.ToOption<string, int, int>();
+
+            Assert.That(newOpt.IsFailed(), Is.True);
+            Assert.That(newOpt.GetError().Message, Is.EqualTo("error occurred!"));
+        }
+
+        [Test]
+        public void Test_Casting_Exception() {
+            Option<string, int, int> r = Option<string, int, int>.Failed(new InvalidOperationException("error happened!"));
+            Option option = r.ToOption(); // boxing
+
+            Option<string, int, int> newOpt = option.ToOption<string, int, int>();
+
+            Assert.That(newOpt.IsFailed(), Is.True);
+            Assert.That(newOpt.GetError().Message, Is.EqualTo("error happened!"));
+            Assert.That(newOpt.GetError().GetType(), Is.EqualTo(typeof(InvalidOperationException)));
+        }
+
+        [Test]
+        public void Test_Casting_Should_Fail_If_Result_Data_Type_Does_Not_Match() {
+            Option<int, double, string> oSuccess = Option<int, double, string>.Success(10);
+            Option<int, double, string> oFailed = Option<int, double, string>.Failed("error happened!", 10.0f);
+            Option<int, double, string> oCanceled = Option<int, double, string>.Canceled("cancelled");
+
+            Option option = oSuccess.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<double, double, string>());
+
+            option = oFailed.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<int, int, string>());
+
+            option = oCanceled.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<int, double, char>());
+        }
+
+        [Test]
+        public void Test_Casting_Should_Success_If_Result_Does_Not_Have_Data() {
+            Option<int, double, string> oSuccess = Option<int, double, string>.Success();
+            Option<int, double, string> oFailed = Option<int, double, string>.Failed("error happened!");
+            Option<int, double, string> oCanceled = Option<int, double, string>.Canceled();
+
+            Option option = oSuccess.ToOption(); // boxing
+            var o1 = option.ToOption<string, string, char>();
+            Assert.That(o1.IsSuccess(), Is.True);
+
+            option = oFailed.ToOption(); // boxing
+            var o2 = option.ToOption<string, string, char>();
+            Assert.That(option.IsFailed(), Is.True);
+
+            option = oCanceled.ToOption(); // boxing
+            var o3 = option.ToOption<string, string, char>();
+            Assert.That(option.IsCanceled(), Is.True);
+        }
+
+        [Test]
+        public void Test_Casting_Should_Success_If_We_Cast_Back_To_Option_T_If_State_Match() {
+            Option<int, double, string> oSuccess = Option<int, double, string>.Success(10);
+            Option<int, double, string> oFailed = Option<int, double, string>.Failed("error happened!", 20.0);
+            Option<int, double, string> oCanceled = Option<int, double, string>.Canceled("cancelled");
+
+            Option option = oSuccess.ToOption(); // boxing
+            var o1 = option.ToOption<int>();
+            Assert.That(o1.IsSuccess(), Is.True);
+            Assert.That(o1.GetResult().Unwrap(), Is.EqualTo(10));
+
+            option = oFailed.ToOption(); // boxing
+            var o2 = option.ToOption<double>();
+            Assert.That(o2.IsFailed(), Is.True);
+            Assert.That(o2.GetResult().Unwrap(), Is.EqualTo(20.0));
+
+            option = oCanceled.ToOption(); // boxing
+            var o3 = option.ToOption<string>();
+            Assert.That(o3.IsCanceled(), Is.True);
+            Assert.That(o3.GetResult().Unwrap(), Is.EqualTo("cancelled"));
+        }
+
+        [Test]
+        public void Test_Casting_Should_Fail_If_We_Cast_Back_To_Option_T_And_Result_Has_Value_If_State_Does_Not_Match() {
+            Option<int, double, string> oSuccess = Option<int, double, string>.Success(10);
+            Option<int, double, string> oFailed = Option<int, double, string>.Failed("error happened!", 20.0);
+            Option<int, double, string> oCanceled = Option<int, double, string>.Canceled("cancelled");
+
+            Option option = oSuccess.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<double>());
+
+            option = oFailed.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<string>());
+
+            option = oCanceled.ToOption(); // boxing
+            Assert.Throws<OptionInvalidExplicitCastException>(() => option.ToOption<int>());
+        }
+
+        [Test]
+        public void Test_Casting_Should_Success_If_We_Cast_Back_To_Option_T_If_Result_Does_Not_Have_Data_And_Mistyped() {
+            Option<int, double, string> oSuccess = Option<int, double, string>.Success();
+            Option<int, double, string> oFailed = Option<int, double, string>.Failed("error happened!");
+            Option<int, double, string> oCanceled = Option<int, double, string>.Canceled();
+
+            Option option = oSuccess.ToOption();
+            var o1 = option.ToOption<double>();// boxing
+            Assert.That(o1.IsSuccess(), Is.True);
+
+            option = oFailed.ToOption(); // boxing
+            var o2 = option.ToOption<string>();// boxing
+            Assert.That(o2.IsFailed(), Is.True);
+
+            option = oCanceled.ToOption(); // boxing
+            var o3 = option.ToOption<int>();// boxing
+            Assert.That(o3.IsCanceled(), Is.True);
+        }
+
         // other
         [Test]
         public void Test_ToString_Should_Work_Correctly() {
-            var option1 =Option<string, string, string>.Success("100");
+            var option1 = Option<string, string, string>.Success("100");
             var option2 = Option<string, string, string>.Failed();
             var option3 = Option<string, string, string>.Canceled();
 
