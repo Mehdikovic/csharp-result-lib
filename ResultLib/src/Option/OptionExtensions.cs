@@ -40,7 +40,7 @@ namespace ResultLib {
             }
 
             if (option.IsFailed(out result)) {
-                if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Failed();
+                if (result.IsError()) return Option<TSuccess, TFailed, TCanceled>.Failed(option.GetErrorInternal());
                 return result.Some<TFailed>(out var some)
                     ? Option<TSuccess, TFailed, TCanceled>.Failed(option.GetErrorInternal(), some)
                     : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TFailed));
