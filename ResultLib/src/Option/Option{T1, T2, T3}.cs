@@ -821,9 +821,9 @@ namespace ResultLib {
 
         public override string ToString() {
             return _state switch {
-                OptionState.Success => "Success; Value: {{{0}}}".Format(GetResultSuccess()),
-                OptionState.Failed => "Failed; Error = {0}; Value: {{{1}}}".Format(GetError().Message, GetResultFailed()),
-                OptionState.Canceled => "Canceled; Value: {{{0}}}".Format(GetResultCanceled()),
+                OptionState.Success => $"Success; Value: {{{GetResultSuccess()}}}",
+                OptionState.Failed => $"Failed; Error = {GetError().Message}; Value: {{{GetResultFailed()}}}",
+                OptionState.Canceled => $"Canceled; Value: {{{GetResultCanceled()}}}",
                 _ => throw new OptionInvalidStateException(),
             };
         }
