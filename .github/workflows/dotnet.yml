@@ -36,3 +36,12 @@ jobs:
       with:
         name: ResultLib-DLL
         path: artifacts/ResultLib.dll
+    
+    - name: Create GitHub Release & Attach DLL
+      uses: softprops/action-gh-release@v2
+      with:
+        files: artifacts/ResultLib.dll
+        tag_name: ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
