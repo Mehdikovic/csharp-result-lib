@@ -1,0 +1,38 @@
+name: Build & Upload ResultLib DLL
+
+on:
+  push:
+    tags:
+      - 'build-*'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Build Solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Extract ResultLib DLL Only
+      run: |
+        mkdir -p artifacts
+        cp ResultLib/bin/Release/net9.0/ResultLib.dll artifacts/
+
+    - name: Upload DLL as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ResultLib-DLL
+        path: artifacts/ResultLib.dll
