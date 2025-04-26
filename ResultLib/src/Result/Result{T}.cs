@@ -200,8 +200,8 @@ namespace ResultLib {
 
         public override string ToString() {
             return _state switch {
-                ResultState.Ok => "Ok = {0}".Format(_value == null ? "null" : _value),
-                ResultState.Error => "Error = {0}".Format(_error),
+                ResultState.Ok => $"Ok = {(_value == null ? "null" : _value)}",
+                ResultState.Error => $"Error = {_error}",
                 _ => throw new ResultInvalidStateException()
             };
         }

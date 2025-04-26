@@ -110,21 +110,21 @@ namespace ResultLib {
             return newValueFromSomeFunc;
         }
 
-        public bool Some<T>(out T value) => IsOk(out value);
+        public bool Some<T>(out T value) => IsOkInternal(out value);
 
         public T Some<T>() {
-            if (IsOk(out T value)) return value;
+            if (IsOkInternal(out T value)) return value;
             throw new ResultInvalidSomeOperationException();
         }
-        
+
         public T Some<T>(T defaultValue) {
-            if (IsOk(out T value)) return value;
+            if (IsOkInternal(out T value)) return value;
             ThrowIfNull(defaultValue);
             return defaultValue;
         }
 
         public T Some<T>(Func<T> func) {
-            if (IsOk(out T value)) return value;
+            if (IsOkInternal(out T value)) return value;
             ThrowIfNull(func);
             var newValueFromSomeFunc = func.Invoke();
             if (newValueFromSomeFunc == null) throw new ResultInvalidSomeOperationException();
@@ -205,8 +205,8 @@ namespace ResultLib {
 
         public override string ToString() {
             return _state switch {
-                ResultState.Ok => "Ok = {0}".Format(_value ?? "null"),
-                ResultState.Error => "Error = {0}".Format(_error),
+                ResultState.Ok => $"Ok = {_value ?? "null"}",
+                ResultState.Error => $"Error = {_error}",
                 _ => throw new ResultInvalidStateException()
             };
         }
@@ -238,7 +238,7 @@ namespace ResultLib {
         static public bool operator <=(Result left, Result right)
             => left.CompareTo(right) <= 0;
 
-        private bool IsOk<T>(out T value) {
+        private bool IsOkInternal<T>(out T value) {
             if (_state == ResultState.Ok && _value is T nValue) {
                 value = nValue;
                 return true;
