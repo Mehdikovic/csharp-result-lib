@@ -32,7 +32,7 @@ jobs:
         cp ResultLib/bin/Release/net9.0/ResultLib.dll artifacts/
 
     - name: Upload DLL as Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ResultLib-DLL
         path: artifacts/ResultLib.dll
