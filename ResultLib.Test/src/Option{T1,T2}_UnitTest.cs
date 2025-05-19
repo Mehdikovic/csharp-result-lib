@@ -269,12 +269,12 @@ namespace ResultLib.Tests {
         [Test]
         public void Test_Merging_Options_Should_Work_If_Success_And_Types_Match_Or_Dont() {
             var option1 = Option<int, string, string>.Success(100);
-            Option<int, string> o = option1.ToMergedOption();
+            Option<int, string> o = option1.BuildCompact();
             Assert.That(o.IsSuccess(), Is.True);
             Assert.That(o.GetResultSuccess().Some(), Is.EqualTo(100));
             
             var option2 = Option<int, string, double>.Success(100);
-            Option<int, string> o2 = option1.ToMergedOption();
+            Option<int, string> o2 = option1.BuildCompact();
             Assert.That(o.IsSuccess(), Is.True);
             Assert.That(o.GetResultSuccess().Some(), Is.EqualTo(100));
         }
@@ -282,13 +282,13 @@ namespace ResultLib.Tests {
         [Test]
         public void Test_Merging_Options_Should_Work_If_FailedOrCanceled_And_Types_Match() {
             var option1 = Option<int, string, string>.FailedValue("failed");
-            Option<int, string> o1 = option1.ToMergedOption();
+            Option<int, string> o1 = option1.BuildCompact();
             Assert.That(o1.IsFailed(), Is.True);
             Assert.That(o1.GetResultFailed().Some(), Is.EqualTo("failed"));
             Assert.That(o1.GetResultCanceled().IsOk(), Is.EqualTo(false));
             
             var option2 = Option<int, string, string>.Canceled("cancelled");
-            Option<int, string> o2 = option2.ToMergedOption();
+            Option<int, string> o2 = option2.BuildCompact();
             Assert.That(o2.IsCanceled(), Is.True);
             Assert.That(o2.GetResultCanceled().Some(), Is.EqualTo("cancelled"));
             Assert.That(o2.GetResultFailed().IsOk(), Is.EqualTo(false));
@@ -297,10 +297,10 @@ namespace ResultLib.Tests {
         [Test]
         public void Test_Merging_Options_Should_Not_Work_If_FailedOrCanceled_And_Types_Dont_Match() {
             var option1 = Option<int, string, double>.FailedValue("failed");
-            Assert.Throws<OptionException>(() => option1.ToMergedOption());
+            Assert.Throws<OptionException>(() => option1.BuildCompact());
             
             var option2 = Option<int, int, string>.Canceled("cancelled");
-            Assert.Throws<OptionException>(() => option2.ToMergedOption());
+            Assert.Throws<OptionException>(() => option2.BuildCompact());
         }
         
         // other
