@@ -68,6 +68,15 @@ namespace ResultLib {
                 canceled: Result<TCanceled>.Error()
             );
 
+        static public Option<TSuccess, TFailed, TCanceled> FailedValue(TFailed value) =>
+            new Option<TSuccess, TFailed, TCanceled>(
+                OptionState.Failed,
+                error: null,
+                success: Result<TSuccess>.Error(),
+                failed: Result<TFailed>.FromRequired(value),
+                canceled: Result<TCanceled>.Error()
+            );
+
         static public Option<TSuccess, TFailed, TCanceled> Failed(string error) =>
             new Option<TSuccess, TFailed, TCanceled>(
                 OptionState.Failed,
@@ -876,6 +885,7 @@ namespace ResultLib {
             => left.CompareTo(right) <= 0;
 
         public Option ToOption() => ToOption(this);
+        public Option<TSuccess, TFailed> ToMergedOption() => ToMergedOption(this);
 
         static private Option ToOption(Option<TSuccess, TFailed, TCanceled> option) {
             if (option.IsSuccess(out Result<TSuccess> resultSuccess)) {
@@ -897,6 +907,11 @@ namespace ResultLib {
             }
 
             throw new OptionInvalidStateException();
+        }
+
+        static private Option<TSuccess, TFailed> ToMergedOption(Option<TSuccess, TFailed, TCanceled> option) {
+            if (!option.IsSuccess() && typeof(TFailed) != typeof(TCanceled)) throw new OptionException("TFailed must be of type TCanceled");
+            return ToOption(option).ToOption<TSuccess, TFailed>();
         }
     }
 }
