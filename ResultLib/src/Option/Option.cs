@@ -29,6 +29,9 @@ namespace ResultLib {
 
         static public Option Failed() =>
             new Option(OptionState.Failed, error: null, value: Result.Error());
+        
+        static public Option FailedValue(object value) =>
+            new Option(OptionState.Failed, error: null, value: Result.FromRequired(value));
 
         static public Option Failed(string error) =>
             new Option(OptionState.Failed, error: new OptionException(error), value: Result.Error());

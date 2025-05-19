@@ -26,6 +26,35 @@ namespace ResultLib {
 
             throw new OptionInvalidStateException();
         }
+        
+        static public Option<TSuccess, TError> ToOption<TSuccess, TError>(this Option option) {
+            if (option.GetResult().IsOk(out object obj)) {
+                if (obj is null) throw new OptionInvalidNullCastException();
+            }
+
+            if (option.IsSuccess(out var result)) {
+                if (result.IsError()) return Option<TSuccess, TError>.Success();
+                return result.Some<TSuccess>(out var some)
+                    ? Option<TSuccess, TError>.Success(some)
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TSuccess));
+            }
+
+            if (option.IsFailed(out result)) {
+                if (result.IsError()) return Option<TSuccess, TError>.Failed(option.GetErrorInternal());
+                return result.Some<TError>(out var some)
+                    ? Option<TSuccess, TError>.Failed(option.GetErrorInternal(), some)
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TError));
+            }
+
+            if (option.IsCanceled(out result)) {
+                if (result.IsError()) return Option<TSuccess, TError>.Canceled();
+                return result.Some<TError>(out var some)
+                    ? Option<TSuccess, TError>.Canceled(some)
+                    : throw new OptionInvalidExplicitCastException(obj.GetType(), typeof(TError));
+            }
+
+            throw new OptionInvalidStateException();
+        }
 
         static public Option<TSuccess, TFailed, TCanceled> ToOption<TSuccess, TFailed, TCanceled>(this Option option) {
             if (option.GetResult().IsOk(out object obj)) {
