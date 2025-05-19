@@ -885,7 +885,7 @@ namespace ResultLib {
             => left.CompareTo(right) <= 0;
 
         public Option ToOption() => ToOption(this);
-        public Option<TSuccess, TFailed> ToMergedOption() => ToMergedOption(this);
+        public Option<TSuccess, TFailed> BuildCompact() => BuildCompact(this);
 
         static private Option ToOption(Option<TSuccess, TFailed, TCanceled> option) {
             if (option.IsSuccess(out Result<TSuccess> resultSuccess)) {
@@ -909,7 +909,7 @@ namespace ResultLib {
             throw new OptionInvalidStateException();
         }
 
-        static private Option<TSuccess, TFailed> ToMergedOption(Option<TSuccess, TFailed, TCanceled> option) {
+        static private Option<TSuccess, TFailed> BuildCompact(Option<TSuccess, TFailed, TCanceled> option) {
             if (!option.IsSuccess() && typeof(TFailed) != typeof(TCanceled)) throw new OptionException("TFailed must be of type TCanceled");
             return ToOption(option).ToOption<TSuccess, TFailed>();
         }
